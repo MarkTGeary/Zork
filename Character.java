@@ -1,12 +1,11 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public class Character {
     private String name;
-    private Room currentRoom;
+    public Room currentRoom;
     private ArrayList<Item> inventory;
 
-    public Character(String name, Room startingRoom, List inventory) {
+    public Character(String name, Room startingRoom, ArrayList<Item> inventory) {
         this.name = name;
         this.currentRoom = startingRoom;
         this.inventory = new ArrayList<>();
@@ -24,7 +23,7 @@ public class Character {
         this.currentRoom = room;
     }
 
-    public List getInventory() {
+    public ArrayList<Item> getInventory() {
         return inventory;
     }
 
@@ -39,6 +38,7 @@ public class Character {
         }
     }
 
+    
     public void addItemToInventory(Item item) {
         inventory.add(item);
         System.out.println(item.getName() + " added to inventory.");
@@ -46,5 +46,14 @@ public class Character {
 
     public void dropFromInventory(Item item) {
         inventory.remove(item);
+    }
+
+    public boolean hasItem(String itemName) {
+        for (Item item : inventory) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

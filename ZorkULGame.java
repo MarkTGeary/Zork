@@ -51,11 +51,9 @@ public class ZorkULGame {
 
         library.setExit("south", outside);
 
-        Item beer = new Item("beer", "A refreshing pint of beer.");
+        Item beer = new Item("beer", "An amazing, creamy pint of beer is within your sights.");
         pub.addItemToRoom(beer);
-        if(player.getCurrentRoom() == pub) {
-            System.out.println("You see a " + beer.getName() + " here. " + beer.getDescription());
-        }
+        
 
 
         // create the player character and start outside
@@ -103,7 +101,66 @@ public class ZorkULGame {
                 } else {
                     return true; // signal to quit
                 }
-                //break;
+            case "drink":
+                if (player.hasItem("beer")) {
+                    System.out.println("You have reached heaven.");
+                } else {
+                    System.out.println("You don't have a beer to drink.");
+                }
+                break;
+            case "inventory":
+                System.out.print("You are carrying:");
+                if (player.getInventory().isEmpty()) {
+                    System.out.println(" nothing.");
+                } 
+                else {                    
+                    for (Item item : player.getInventory()) {
+                        System.out.println("- " + item.getName());
+                    }
+                }
+                break;
+            case "take":
+                if (!command.hasSecondWord()) {
+                    System.out.println("Take what?");
+                } else {
+                    String itemName = command.getSecondWord();
+                    Room currentRoom = player.getCurrentRoom();
+                    Item itemToTake = null;
+                    for (Item item : currentRoom.getItems()) {
+                        if (item.getName().equalsIgnoreCase(itemName)) {
+                            itemToTake = item;
+                            break;
+                        }
+                    }
+                    if (itemToTake != null) {
+                        player.addItemToInventory(itemToTake);
+                        currentRoom.removeItemFromRoom(itemToTake);
+                    } else {
+                        System.out.println("There is no " + itemName + " here.");
+                    }
+                }
+                break;
+            case "drop":
+                if (!command.hasSecondWord()) {
+                    System.out.println("Drop what?");
+                } else {
+                    String itemName = command.getSecondWord();
+                    Item itemToDrop = null;
+                    for (Item item : player.getInventory()) {
+                        if (item.getName().equalsIgnoreCase(itemName)) {
+                            itemToDrop = item;
+                            break;
+                        }
+                    }
+                    if (itemToDrop != null) {
+                        player.dropFromInventory(itemToDrop);
+                        player.getCurrentRoom().addItemToRoom(itemToDrop);
+                        System.out.println("You dropped the " + itemName + ".");
+                    } else {
+                        System.out.println("You don't have a " + itemName + ".");
+                    }
+                }
+                break;
             default:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -132,6 +189,12 @@ public class ZorkULGame {
         } else {
             player.setCurrentRoom(nextRoom);
             System.out.println(player.getCurrentRoom().getLongDescription());
+            if (!nextRoom.getItems().isEmpty()) {
+                System.out.println("You see the following items:");
+                for (Item item : nextRoom.getItems()) {
+                    System.out.println(item.getDescription());
+                }
+            }
         }
     }
 

@@ -38,7 +38,12 @@ public class Room {
         return "You are " + description + ".\nExits: " + getExitString();
     }
 
+    public ArrayList<Item> getItems() {
+        return (ArrayList<Item>) items;
+    }
+
     public void addItemToRoom(Item item) {
+        item.getDescription();
         items.add(item);
     }
 
