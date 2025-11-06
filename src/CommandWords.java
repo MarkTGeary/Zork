@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandWords {
-    private Map<String, String> validCommands;
+    private final Map<String, String> validCommands;
 
     public CommandWords() {
         validCommands = new HashMap<>();
@@ -14,6 +14,7 @@ public class CommandWords {
         validCommands.put("inventory", "Check inventory");
         validCommands.put("take", "Take an item");
         validCommands.put("drop", "Drop an item");
+        validCommands.put("trade", "Trade an item with an NPC");
 
     }
 

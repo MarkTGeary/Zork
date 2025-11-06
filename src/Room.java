@@ -51,3 +51,10 @@ public class Room {
         items.remove(item);
     }
 }
+class Alarm {
+    public void ring(Character player, Room cell){
+        System.out.println("Oh no! You have set off the alarm!");
+        player.setCurrentRoom(cell);
+        //Set Enum Game Lose that restarts it all
+    }
+}

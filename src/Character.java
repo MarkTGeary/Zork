@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Character {
-    private String name;
+    private final String name;
     public Room currentRoom;
     private ArrayList<Item> inventory;
 
@@ -56,4 +56,28 @@ public class Character {
         }
         return false;
     }
+}
+
+class NPC extends Character {
+    private String dialogue;
+    public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String dialogue) {
+        super(name, startingRoom, inventory);
+        this.dialogue = dialogue;
+    }
+    public NPC(String name, Room startingRoom, String dialogue) {
+        super(name, startingRoom, null);
+        this.dialogue = dialogue;
+    }
+    public String getDialogue() {
+        return dialogue;
+    }
+
+    public void giveToPlayer(Character player, Item item){
+        player.addItemToInventory(item);
+    }
+
+    public void receiveFromPlayer(Character player, Item item){
+        player.dropFromInventory(item);
+    }
+
 }

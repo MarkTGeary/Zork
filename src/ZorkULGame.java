@@ -24,40 +24,62 @@ public class ZorkULGame {
     }
 
     private void createRooms() {
-        Room outside, theatre, pub, lab, office;
+        Room cell, yard, guardStation, corridor1, corridor2, infirmary, securityRoom;
+        Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, pub;
 
         // create rooms
-        outside = new Room("outside the main entrance of the university");
-        theatre = new Room("in a lecture theatre");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-        Room library = new Room("in the university library");
-
-        // initialise room exits
-        outside.setExit("east", theatre);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
-        outside.setExit("north", library);
-
-        theatre.setExit("west", outside);
-
-        pub.setExit("east", outside);
-
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
-
-        office.setExit("west", lab);
-
-        library.setExit("south", outside);
-
-        Item beer = new Item("beer", "An amazing, creamy pint of beer is within your sights.");
-        pub.addItemToRoom(beer);
-        
+        cell = new Room("inside your prison cell");
+        corridor1 = new Room("inside a corridor");
+        yard = new Room("outside in the yard");
+        guardStation = new Room("inside the guard station");
+        corridor2 = new Room("inside a corridor");
+        kitchen = new Room("inside the kitchen");
+        cafeteria = new Room("inside the cafeteria");
+        prisonExit = new Room("at the prison exit");
+        pub = new Room("inside the pub");
+        wardenOffice = new Room("inside the warden office");
+        securityRoom = new Room("inside the security room");
+        storageRoom = new Room("inside the storage room");
+        infirmary = new Room("inside the infirmary");
 
 
-        // create the player character and start outside
-        player = new Character("player", outside, new ArrayList<>());
+        cell.setExit("east", corridor1);
+
+        corridor1.setExit("east", cafeteria);
+        corridor1.setExit("west", cell);
+        corridor1.setExit("south", guardStation);
+        corridor1.setExit("north", yard);
+
+        yard.setExit("south", corridor1);
+        yard.setExit("east", storageRoom);
+
+        storageRoom.setExit("west", yard);
+        Item shovel = new Item("shovel", "shovel");
+        storageRoom.addItemToRoom(shovel);
+
+        cafeteria.setExit("west", corridor1);
+        cafeteria.setExit("east", kitchen);
+
+        kitchen.setExit("west", cafeteria);
+
+        guardStation.setExit("north", corridor1);
+        guardStation.setExit("south", corridor2);
+        guardStation.setExit("east", infirmary);
+
+        infirmary.setExit("west", guardStation);
+
+        corridor2.setExit("north", guardStation);
+        corridor2.setExit("south", prisonExit);
+        corridor2.setExit("west", securityRoom);
+
+        securityRoom.setExit("east", corridor2);
+        securityRoom.setExit("south", wardenOffice);
+
+        wardenOffice.setExit("north", securityRoom);
+
+
+        // create the player character and start in their cell
+        player = new Character("player", cell, new ArrayList<>());
     }
 
     public void play() {
@@ -73,7 +95,8 @@ public class ZorkULGame {
 
     private void printWelcome() {
         System.out.println();
-        System.out.println("Welcome to the University adventure!");
+        System.out.println("Welcome to the Prison Escape!");
+        System.out.println("Explore the prison to find items to help you escape. \nDon't get caught by the guards!");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
         System.out.println(player.getCurrentRoom().getLongDescription());
@@ -161,6 +184,20 @@ public class ZorkULGame {
                     }
                 }
                 break;
+            case "trade":
+                if (!command.hasSecondWord()) {
+                    System.out.println("Trade what?");
+                } else {
+                    String itemName = command.getSecondWord();
+                    Item itemToTrade = null;
+                    for (Item item : player.getInventory()) {
+                        if (item.getName().equalsIgnoreCase(itemName)) {
+                            itemToTrade = item;
+                            //NPC.tradeWithPlayer();
+                        }
+
+                    }
+                }
             default:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -169,8 +206,8 @@ public class ZorkULGame {
     }
 
     private void printHelp() {
-        System.out.println("You are lost. You are alone. You wander around the university.");
-        System.out.print("Your command words are: ");
+        System.out.println("You are lost. You are alone. You are stuck in this prison.");
+        //System.out.print("Your command words are: ");
         parser.showCommands();
     }
 
