@@ -108,16 +108,11 @@ public class ZorkPrisonGame {
         System.out.println("Thank you for playing. Goodbye.");
     }
 
-    private void printWelcome() {
-        System.out.println();
-        System.out.println("Welcome to the Prison Escape!");
-        System.out.println("Explore the prison to find items to help you escape. \nDon't get caught by the guards!");
-        System.out.println("Type 'help' if you need help.");
-        System.out.println();
-        System.out.println(player.getCurrentRoom().getLongDescription());
+    public String printWelcome() {
+        return ("Welcome to the Prison Escape! \nExplore the prison to find items to help you escape. \nDon't get caught by the guards!\n" + player.getCurrentRoom().getLongDescription());
     }
 
-    private boolean processCommand(Command command) {
+    public boolean processCommand(Command command) {
         String commandWord = command.getCommandWord();
 
         if (commandWord == null) {
