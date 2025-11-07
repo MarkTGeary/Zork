@@ -14,18 +14,18 @@ emphasizing exploration and simple command-driven gameplay
 */
 import java.util.ArrayList;
 
-public class ZorkULGame {
+public class ZorkPrisonGame {
     private Parser parser;
     private Character player;
 
-    public ZorkULGame() {
+    public ZorkPrisonGame() {
         createRooms();
         parser = new Parser();
     }
 
     private void createRooms() {
         Room cell, yard, guardStation, corridor1, corridor2, infirmary, securityRoom;
-        Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, pub;
+        Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, pub, BobCell;
 
         // create rooms
         cell = new Room("inside your prison cell");
@@ -41,9 +41,13 @@ public class ZorkULGame {
         securityRoom = new Room("inside the security room");
         storageRoom = new Room("inside the storage room");
         infirmary = new Room("inside the infirmary");
+        BobCell = new Room("inside Bob's Cell");
 
-
+        // set exits
         cell.setExit("east", corridor1);
+        cell.setExit("south", BobCell);
+
+        BobCell.setExit("north", cell);
 
         corridor1.setExit("east", cafeteria);
         corridor1.setExit("west", cell);
@@ -52,9 +56,11 @@ public class ZorkULGame {
 
         yard.setExit("south", corridor1);
         yard.setExit("east", storageRoom);
+        Item gold = new Item("gold", "gold", false);
+        yard.addItemToRoom(gold);
 
         storageRoom.setExit("west", yard);
-        Item shovel = new Item("shovel", "shovel");
+        Item shovel = new Item("shovel", "shovel", true);
         storageRoom.addItemToRoom(shovel);
 
         cafeteria.setExit("west", corridor1);
@@ -76,10 +82,19 @@ public class ZorkULGame {
         securityRoom.setExit("south", wardenOffice);
 
         wardenOffice.setExit("north", securityRoom);
+        Item AccessCode = new Item("accessCode", "Access Code to exit", true);
+        wardenOffice.addItemToRoom(AccessCode);
 
+        Item car = new Item("car", "car", true);
+        prisonExit.addItemToRoom(car);
+
+        Item beer = new Item("beer", "beer", true);
+        pub.addItemToRoom(beer);
 
         // create the player character and start in their cell
         player = new Character("player", cell, new ArrayList<>());
+        NPC prisoner = new NPC("Bob", BobCell, new ArrayList<>(), "prisoner");
+
     }
 
     public void play() {
@@ -236,7 +251,7 @@ public class ZorkULGame {
     }
 
     public static void main(String[] args) {
-        ZorkULGame game = new ZorkULGame();
+        ZorkPrisonGame game = new ZorkPrisonGame();
         game.play();
     }
 }

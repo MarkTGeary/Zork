@@ -5,7 +5,7 @@ public class Item {
     private int id;
     private boolean isVisible;
 
-    public Item(String name, String description) {
+    public Item(String name, String description, boolean isVisisble) {
         this.name = name;
         this.description = description;
         this.isVisible = true;
