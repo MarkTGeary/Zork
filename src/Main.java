@@ -90,7 +90,29 @@ public class Main extends Application {
         south.setOnAction(e -> process("go south"));
         east.setOnAction(e -> process("go east"));
         west.setOnAction(e -> process("go west"));
-        takeItem.setOnAction(e -> process("take item"));
+        takeItem.setOnAction(e -> {
+            Room currentRoom = game.getPlayer().getCurrentRoom();
+            if (currentRoom == null) {
+                System.out.println("Error: player is not in a room.");
+                return;
+            }
+
+            if (currentRoom.getItems().isEmpty()) {
+                System.out.println("There is nothing to take here.");
+            } else if (currentRoom.getItems().size() == 1) {
+                String itemName = currentRoom.getItems().get(0).getName();
+                System.out.println("Trying to take " + itemName);
+                process("take " + itemName);
+            } else {
+                System.out.println("Which item do you want to take? Available: ");
+                for (Item item : currentRoom.getItems()) {
+                    System.out.println("- " + item.getName());
+                }
+            }
+        });
+
+
+
 
         root.getChildren().addAll(north, south, west, east, takeItem, console);
 

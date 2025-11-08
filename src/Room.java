@@ -7,11 +7,15 @@ public class Room {
     private String description;
     private Map<String, Room> exits; // Map direction to neighboring Room
     private List<Item> items; // List of items in the room
+    private List<NPC> npcs;
+    private boolean hasAlarm;
 
     public Room(String description) {
         this.description = description;
         exits = new HashMap<>();
         this.items = new ArrayList<>();
+        this.npcs = new ArrayList<>();
+        this.hasAlarm = false;
     }
 
     public String getDescription() {
@@ -35,7 +39,7 @@ public class Room {
     }
 
     public String getLongDescription() {
-        return "You are " + description + ".\nExits: " + getExitString();
+        return "\nYou are " + description + ".\nExits: " + getExitString();
     }
 
     public ArrayList<Item> getItems() {
@@ -47,8 +51,24 @@ public class Room {
         items.add(item);
     }
 
+
     public void removeItemFromRoom(Item item) {
         items.remove(item);
+    }
+
+    public void addNPC(NPC npc){
+        npcs.add(npc);
+    }
+
+    public List<NPC> getNpcs() {
+        return npcs;
+    }
+
+    public boolean hasAlarm() {
+        return hasAlarm;
+    }
+    public void setHasAlarm(boolean value) {
+        this.hasAlarm = value;
     }
 }
 class Alarm {

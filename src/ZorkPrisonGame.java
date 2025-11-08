@@ -71,6 +71,7 @@ public class ZorkPrisonGame {
         guardStation.setExit("north", corridor1);
         guardStation.setExit("south", corridor2);
         guardStation.setExit("east", infirmary);
+        guardStation.setHasAlarm(true);
 
         infirmary.setExit("west", guardStation);
 
@@ -197,17 +198,58 @@ public class ZorkPrisonGame {
             case "trade":
                 if (!command.hasSecondWord()) {
                     System.out.println("Trade what?");
-                } else {
-                    String itemName = command.getSecondWord();
-                    Item itemToTrade = null;
-                    for (Item item : player.getInventory()) {
-                        if (item.getName().equalsIgnoreCase(itemName)) {
-                            itemToTrade = item;
-                            //NPC.tradeWithPlayer();
-                        }
+                    break;
+                }
+                else if (!command.hasThirdWord() || !command.getThirdWord().equalsIgnoreCase("for")) {
+                    System.out.println("Invalid syntax. Use: 'trade <your item> for <their item>'.");
+                    break;
+                }
+                else if (!command.hasFourthWord()) {
+                    System.out.println("Trade " + command.getSecondWord() + " for what?");
+                    break;
+                }
 
+                String playerItemName = command.getSecondWord();
+                String npcItemName = command.getFourthWord();
+
+                Item playerItem = null;
+                for (Item item : player.getInventory()) {
+                    if (item.getName().equalsIgnoreCase(playerItemName)) {
+                        playerItem = item;
+                        break;
                     }
                 }
+                if (playerItem == null) {
+                    System.out.println("You don't have a " + playerItemName + " to trade.");
+                    break;
+                }
+                    // --- Find NPC in current room ---
+                NPC npc = null;
+                for (NPC character : player.getCurrentRoom().getNPCs()) {
+                    npc = character;
+                    break; // assuming only one NPC per room for now
+                }
+                if (npc == null) {
+                    System.out.println("There's no one here to trade with.");
+                    break;
+                }
+                    // --- Find NPC's item ---
+                Item npcItem = null;
+                for (Item item : npc.getInventory()) {
+                    if (item.getName().equalsIgnoreCase(npcItemName)) {
+                        npcItem = item;
+                        break;
+                    }
+                }
+                if (npcItem == null) {
+                    System.out.println(npc.getName() + " doesn't have a " + npcItemName + ".");
+                    break;
+                }
+
+                npc.giveToPlayer(player, npc, npcItem);     // NPC gives their item to player
+                npc.receiveFromPlayer(player, npc, playerItem); // NPC receives player's item
+                System.out.println("You traded your " + playerItemName + " for " + npc.getName() + "'s " + npcItemName + ".");
+                break;
             default:
                 System.out.println("I don't know what you mean...");
                 break;

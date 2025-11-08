@@ -72,11 +72,13 @@ class NPC extends Character {
         return dialogue;
     }
 
-    public void giveToPlayer(Character player, Item item){
+    public void giveToPlayer(Character player, NPC npc, Item item){
+        npc.dropFromInventory(item);
         player.addItemToInventory(item);
     }
 
-    public void receiveFromPlayer(Character player, Item item){
+    public void receiveFromPlayer(Character player, NPC npc, Item item){
+        npc.addItemToInventory(item);
         player.dropFromInventory(item);
     }
 
