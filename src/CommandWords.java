@@ -15,6 +15,7 @@ public class CommandWords {
         validCommands.put("take", "Take an item");
         validCommands.put("drop", "Drop an item");
         validCommands.put("trade", "Trade an item with an NPC");
+        validCommands.put("talk", "Talk to an NPC");
 
     }
 

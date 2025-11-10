@@ -8,11 +8,14 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import java.io.PrintStream;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Main extends Application {
 
     private ZorkPrisonGame game;
     private TextArea console;
+    private ImageView imageView;
 
     @Override
     public void start(Stage stage) {
@@ -35,13 +38,14 @@ public class Main extends Application {
         console.setLayoutY(screenHeight - console.getPrefHeight() - 70);
         String intro = game.printWelcome();
         console.appendText(intro);
+        console.appendText("\n> ");
 
         redirectSystemOut();
 
         // --- Handle Enter key ---
         console.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
-                e.consume(); // prevent automatic newline
+                e.consume();
                 String text = console.getText();
                 String[] lines = text.split("\n");
                 String lastLine = lines[lines.length - 1];
@@ -52,10 +56,11 @@ public class Main extends Application {
                     }
                 }
                 console.appendText("\n> ");
-                console.positionCaret(console.getText().length()); // keep caret at end
+                console.positionCaret(console.getText().length());
             }
         });
 
+        // --- Direction buttons ---
         Button north = new Button("Go North");
         Button south = new Button("Go South");
         Button west = new Button("Go West");
@@ -85,13 +90,20 @@ public class Main extends Application {
             b.setPrefSize(90, 90);
         }
 
-        // Button actions simulate typed input
-        north.setOnAction(e -> process("go north"));
-        south.setOnAction(e -> process("go south"));
-        east.setOnAction(e -> process("go east"));
-        west.setOnAction(e -> process("go west"));
+        north.setOnAction(e -> {
+            process("go north");
+        });
+        south.setOnAction(e -> {
+            process("go south");
+        });
+        east.setOnAction(e -> {
+            process("go east");
+        });
+        west.setOnAction(e -> {
+                process("go west");
+                });
         takeItem.setOnAction(e -> {
-            Room currentRoom = game.getPlayer().getCurrentRoom();
+            Room currentRoom = game.getCurrentRoom();
             if (currentRoom == null) {
                 System.out.println("Error: player is not in a room.");
                 return;
@@ -101,7 +113,6 @@ public class Main extends Application {
                 System.out.println("There is nothing to take here.");
             } else if (currentRoom.getItems().size() == 1) {
                 String itemName = currentRoom.getItems().get(0).getName();
-                System.out.println("Trying to take " + itemName);
                 process("take " + itemName);
             } else {
                 System.out.println("Which item do you want to take? Available: ");
@@ -109,24 +120,64 @@ public class Main extends Application {
                     System.out.println("- " + item.getName());
                 }
             }
+
         });
 
 
+        imageView = new ImageView();
+        imageView.setFitHeight(480);
+        imageView.setFitWidth(600);
+        imageView.setLayoutX(screenWidth - imageView.getFitWidth() - 5);
+        imageView.setLayoutY(0);
 
+        updateRoomImage(game.getCurrentRoom());
 
-        root.getChildren().addAll(north, south, west, east, takeItem, console);
+        root.getChildren().addAll(north, south, west, east, takeItem, console, imageView);
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
         stage.setScene(scene);
         stage.show();
     }
 
+    private void updateRoomImage(Room room) {
+        Image cellImage = new Image("file:img/Cell1.png");
+        Image bobCellImage = new Image("file:img/BobCell.png");
+        Image corridorImage = new Image("file:img/corridor.png");
+        Image yardImage = new Image("file:img/yard.png");
+        Image storageRoomImage = new Image("file:img/storageRoom.png");
+
+        switch(room.getName().toLowerCase()) {
+            case "cell":
+                imageView.setImage(cellImage);
+                break;
+            case "bobCell":
+                imageView.setImage(bobCellImage);
+                break;
+            case "corridor1":
+                imageView.setImage(corridorImage);
+                break;
+            case "yard":
+                imageView.setImage(yardImage);
+                break;
+            case "storageRoom":
+                imageView.setImage(storageRoomImage);
+                break;
+        }
+
+    }
+
     private void process(String input) {
-        String[] words = input.split(" ");
-        String word1 = words[0];
-        String word2 = (words.length > 1) ? words[1] : null;
-        Command command = new Command(word1, word2);
+        String[] words = input.trim().split("\\s+");
+        String word1 = words.length > 0 ? words[0] : null;
+        String word2 = words.length > 1 ? words[1] : null;
+        String word3 = words.length > 2 ? words[2] : null;
+        String word4 = words.length > 3 ? words[3] : null;
+        Command command = new Command(word1, word2, word3, word4);
+
         game.processCommand(command);
+
+        // Update room image after command
+        updateRoomImage(game.getCurrentRoom());
     }
 
     private void redirectSystemOut() {

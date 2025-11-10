@@ -59,14 +59,26 @@ public class Character {
 }
 
 class NPC extends Character {
+    private String introduction;
     private String dialogue;
-    public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String dialogue) {
+    public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String introduction, String dialogue) {
         super(name, startingRoom, inventory);
+        this.introduction = introduction;
         this.dialogue = dialogue;
     }
-    public NPC(String name, Room startingRoom, String dialogue) {
+    public NPC(String name, Room startingRoom, String introduction, String dialogue) {
         super(name, startingRoom, null);
+        this.introduction = introduction;
         this.dialogue = dialogue;
+    }
+
+    @Override
+    public void addItemToInventory(Item item) {
+        getInventory().add(item);
+    }
+
+    public String  getIntroduction() {
+        return introduction;
     }
     public String getDialogue() {
         return dialogue;

@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Room {
+    private String name;
     private String description;
     private Map<String, Room> exits; // Map direction to neighboring Room
     private List<Item> items; // List of items in the room
     private List<NPC> npcs;
     private boolean hasAlarm;
 
-    public Room(String description) {
+    public Room(String name, String description) {
+        this.name = name;
         this.description = description;
         exits = new HashMap<>();
         this.items = new ArrayList<>();
@@ -18,6 +20,9 @@ public class Room {
         this.hasAlarm = false;
     }
 
+    public String getName(){
+        return name;
+    }
     public String getDescription() {
         return description;
     }
@@ -60,7 +65,7 @@ public class Room {
         npcs.add(npc);
     }
 
-    public List<NPC> getNpcs() {
+    public List<NPC> getNPCs() {
         return npcs;
     }
 

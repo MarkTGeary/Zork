@@ -28,20 +28,20 @@ public class ZorkPrisonGame {
         Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, pub, BobCell;
 
         // create rooms
-        cell = new Room("inside your prison cell");
-        corridor1 = new Room("inside a corridor");
-        yard = new Room("outside in the yard");
-        guardStation = new Room("inside the guard station");
-        corridor2 = new Room("inside a corridor");
-        kitchen = new Room("inside the kitchen");
-        cafeteria = new Room("inside the cafeteria");
-        prisonExit = new Room("at the prison exit");
-        pub = new Room("inside the pub");
-        wardenOffice = new Room("inside the warden office");
-        securityRoom = new Room("inside the security room");
-        storageRoom = new Room("inside the storage room");
-        infirmary = new Room("inside the infirmary");
-        BobCell = new Room("inside Bob's Cell");
+        cell = new Room("cell","inside your prison cell");
+        corridor1 = new Room("corridor1","inside a corridor");
+        yard = new Room("yard","outside in the yard");
+        guardStation = new Room("guardStation","inside the guard station");
+        corridor2 = new Room("corridor2","inside a corridor");
+        kitchen = new Room("kitchen","inside the kitchen");
+        cafeteria = new Room("cafeteria","inside the cafeteria");
+        prisonExit = new Room("prisonExit","at the prison exit");
+        pub = new Room("pub","inside the pub");
+        wardenOffice = new Room("wardenOffice","inside the warden office");
+        securityRoom = new Room("securityRoom","inside the security room");
+        storageRoom = new Room("storageRoom","inside the storage room");
+        infirmary = new Room("infirmary","inside the infirmary");
+        BobCell = new Room("bobCell","inside Bob's Cell");
 
         // set exits
         cell.setExit("east", corridor1);
@@ -94,8 +94,16 @@ public class ZorkPrisonGame {
 
         // create the player character and start in their cell
         player = new Character("player", cell, new ArrayList<>());
-        NPC prisoner = new NPC("Bob", BobCell, new ArrayList<>(), "prisoner");
+        NPC prisoner = new NPC("Bob", BobCell, new ArrayList<>(),
+                "You see another prisoner named Bob. He looks like he has lots to say.",
+                "You'll need a guard's uniform if you're trying to escape.\nI can get you one if you have something valuable for me.");
+        Item guardUniform = new Item("guardUniform", "Guard Uniform", true);
+        BobCell.addNPC(prisoner);
+        prisoner.addItemToInventory(guardUniform);
+    }
 
+    public Room getCurrentRoom() {
+        return player.getCurrentRoom();
     }
 
     public void play() {
@@ -223,11 +231,10 @@ public class ZorkPrisonGame {
                     System.out.println("You don't have a " + playerItemName + " to trade.");
                     break;
                 }
-                    // --- Find NPC in current room ---
                 NPC npc = null;
                 for (NPC character : player.getCurrentRoom().getNPCs()) {
                     npc = character;
-                    break; // assuming only one NPC per room for now
+                    break;
                 }
                 if (npc == null) {
                     System.out.println("There's no one here to trade with.");
@@ -250,6 +257,23 @@ public class ZorkPrisonGame {
                 npc.receiveFromPlayer(player, npc, playerItem); // NPC receives player's item
                 System.out.println("You traded your " + playerItemName + " for " + npc.getName() + "'s " + npcItemName + ".");
                 break;
+            case "talk":
+                if (!command.hasSecondWord()) {
+                    System.out.println("Talk to who?");
+                }
+                else if (!command.hasThirdWord() || !command.getSecondWord().equalsIgnoreCase("to") || command.hasFourthWord()) {
+                    System.out.println("Invalid syntax. Use: 'talk to <NPC name>'");
+                }
+                else {
+                    Room currentRoom = player.getCurrentRoom();
+                    String NpcName = command.getThirdWord();
+                    for(NPC Npc: currentRoom.getNPCs()){
+                        if (Npc.getName().equalsIgnoreCase(NpcName)){
+                            System.out.println(Npc.getDialogue());
+                        }
+                    }
+                }
+                break;
             default:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -259,7 +283,7 @@ public class ZorkPrisonGame {
 
     private void printHelp() {
         System.out.println("You are lost. You are alone. You are stuck in this prison.");
-        //System.out.print("Your command words are: ");
+        System.out.print("Your command words are: ");
         parser.showCommands();
     }
 
@@ -282,6 +306,11 @@ public class ZorkPrisonGame {
                 System.out.println("You see the following items:");
                 for (Item item : nextRoom.getItems()) {
                     System.out.println(item.getDescription());
+                }
+            }
+            if(!nextRoom.getNPCs().isEmpty()){
+                for(NPC npc : nextRoom.getNPCs()){
+                    System.out.println(npc.getIntroduction());
                 }
             }
         }
