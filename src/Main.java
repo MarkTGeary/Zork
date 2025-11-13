@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,6 +11,8 @@ import javafx.stage.Stage;
 import java.io.PrintStream;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.control.ComboBox;
+import javafx.collections.ObservableList;
 
 public class Main extends Application {
 
@@ -29,7 +32,7 @@ public class Main extends Application {
         double screenWidth = screenBounds.getWidth();
         double screenHeight = screenBounds.getHeight();
 
-        // --- Console setup ---
+        //Used AI to help set up console-ish Text Area
         console = new TextArea();
         console.setEditable(true);
         console.setWrapText(true);
@@ -65,7 +68,9 @@ public class Main extends Application {
         Button south = new Button("Go South");
         Button west = new Button("Go West");
         Button east = new Button("Go East");
-        Button takeItem = new Button("Pick Up Item");
+        Button takeItem = new Button("Take Item");
+
+        Button inventory = new Button("Inventory");
 
         double centerX = 150;
         double centerY = 120;
@@ -86,7 +91,11 @@ public class Main extends Application {
         takeItem.setLayoutX(centerX);
         takeItem.setLayoutY(centerY);
 
-        for (Button b : new Button[]{north, south, west, east, takeItem}) {
+        inventory.setLayoutX(centerX * 3);
+        inventory.setLayoutY(centerY-spacing);
+
+
+        for (Button b : new Button[]{north, south, west, east, takeItem, inventory}) {
             b.setPrefSize(90, 90);
         }
 
@@ -111,16 +120,34 @@ public class Main extends Application {
 
             if (currentRoom.getItems().isEmpty()) {
                 System.out.println("There is nothing to take here.");
-            } else if (currentRoom.getItems().size() == 1) {
+            }
+            else if (currentRoom.getItems().size() == 1) {
                 String itemName = currentRoom.getItems().get(0).getName();
                 process("take " + itemName);
-            } else {
-                System.out.println("Which item do you want to take? Available: ");
-                for (Item item : currentRoom.getItems()) {
-                    System.out.println("- " + item.getName());
-                }
             }
+            else {
+                ObservableList<Item> itemChoices = FXCollections.observableArrayList(currentRoom.getItems());
+                ComboBox<Item> comboBox = new ComboBox<>(itemChoices);
+                comboBox.setPromptText("Choose an Item");
 
+                comboBox.setLayoutX(150);
+                comboBox.setLayoutY(320);
+
+                root.getChildren().add(comboBox);
+
+                comboBox.setOnAction(event -> {
+                    Item selected = comboBox.getValue();
+                    if (selected != null) {
+                        System.out.println("Selected: " + selected.getName());
+                        process("take " + selected.getName());
+                        root.getChildren().remove(comboBox);
+                    }
+                });
+            }
+        });
+
+        inventory.setOnAction(e -> {
+            process("inventory");
         });
 
 
@@ -132,7 +159,7 @@ public class Main extends Application {
 
         updateRoomImage(game.getCurrentRoom());
 
-        root.getChildren().addAll(north, south, west, east, takeItem, console, imageView);
+        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView);
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
         stage.setScene(scene);
@@ -141,16 +168,25 @@ public class Main extends Application {
 
     private void updateRoomImage(Room room) {
         Image cellImage = new Image("file:img/Cell1.png");
-        Image bobCellImage = new Image("file:img/BobCell.png");
+        Image bobCellImage = new Image("file:img/Cell2.png");
         Image corridorImage = new Image("file:img/corridor.png");
         Image yardImage = new Image("file:img/yard.png");
         Image storageRoomImage = new Image("file:img/storageRoom.png");
+        Image pubImage = new Image("file:img/pub.png");
+        Image infirmaryImage = new Image("file:img/infirmary.png");
+        Image cafeteriaImage = new  Image("file:img/cafeteria.png");
+        Image wardenOfficeImage = new Image("file:img/wardenOffice.jpg");
+        Image securityRoomImage = new Image("file:img/securityRoom.png");
+        Image kitchenImage = new Image("file:img/kitchen.png");
+        Image guardStationImage = new Image("file:img/guardStation.png");
+        Image prisonExitImage = new Image("file:img/prisonExit.jpg");
+        Image corridor2Image = new Image("file:img/corridor2.png");
 
         switch(room.getName().toLowerCase()) {
             case "cell":
                 imageView.setImage(cellImage);
                 break;
-            case "bobCell":
+            case "bobcell":
                 imageView.setImage(bobCellImage);
                 break;
             case "corridor1":
@@ -159,8 +195,35 @@ public class Main extends Application {
             case "yard":
                 imageView.setImage(yardImage);
                 break;
-            case "storageRoom":
+            case "storageroom":
                 imageView.setImage(storageRoomImage);
+                break;
+            case "pub":
+                imageView.setImage(pubImage);
+                break;
+            case "infirmary":
+                imageView.setImage(infirmaryImage);
+                break;
+            case "cafeteria":
+                imageView.setImage(cafeteriaImage);
+                break;
+            case "wardenoffice":
+                imageView.setImage(wardenOfficeImage);
+                break;
+            case "securityroom":
+                imageView.setImage(securityRoomImage);
+                break;
+            case "kitchen":
+                imageView.setImage(kitchenImage);
+                break;
+            case "guardstation":
+                imageView.setImage(guardStationImage);
+                break;
+            case "prisonexit":
+                imageView.setImage(prisonExitImage);
+                break;
+            case "corridor2":
+                imageView.setImage(corridor2Image);
                 break;
         }
 
@@ -172,11 +235,12 @@ public class Main extends Application {
         String word2 = words.length > 1 ? words[1] : null;
         String word3 = words.length > 2 ? words[2] : null;
         String word4 = words.length > 3 ? words[3] : null;
-        Command command = new Command(word1, word2, word3, word4);
+        String word5 = words.length > 4 ? words[4] : null;
+        Command command = new Command(word1, word2, word3, word4, word5);
 
         game.processCommand(command);
 
-        // Update room image after command
+
         updateRoomImage(game.getCurrentRoom());
     }
 

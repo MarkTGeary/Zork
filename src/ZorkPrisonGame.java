@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class ZorkPrisonGame {
     private Parser parser;
     private Character player;
+    private Room pub;
 
     public ZorkPrisonGame() {
         createRooms();
@@ -25,7 +26,7 @@ public class ZorkPrisonGame {
 
     private void createRooms() {
         Room cell, yard, guardStation, corridor1, corridor2, infirmary, securityRoom;
-        Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, pub, BobCell;
+        Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, BobCell;
 
         // create rooms
         cell = new Room("cell","inside your prison cell");
@@ -97,7 +98,12 @@ public class ZorkPrisonGame {
         NPC prisoner = new NPC("Bob", BobCell, new ArrayList<>(),
                 "You see another prisoner named Bob. He looks like he has lots to say.",
                 "You'll need a guard's uniform if you're trying to escape.\nI can get you one if you have something valuable for me.");
-        Item guardUniform = new Item("guardUniform", "Guard Uniform", true);
+        NPC chef = new NPC("John", kitchen, new ArrayList<>(), "You meet John, the chef. He's been known to be helpful to the prisoners.",
+                "There was a rumour that there is gold hidden underneath the yard. You'll need to inject the guard on duty with this to avoid being caught.");
+        Item poison =  new Item("poison", "poison", true);
+        kitchen.addNPC(chef);
+        chef.addItemToInventory(poison);
+        Item guardUniform = new Item("GuardUniform", "guard uniform", true);
         BobCell.addNPC(prisoner);
         prisoner.addItemToInventory(guardUniform);
     }
@@ -204,6 +210,16 @@ public class ZorkPrisonGame {
                 }
                 break;
             case "trade":
+                String npcItemName;
+                if(command.hasFifthWord()) {
+                    StringBuilder fixMultiWord = new StringBuilder();
+                    fixMultiWord.append(command.getFourthWord());
+                    fixMultiWord.append(command.getFifthWord());
+                    npcItemName = fixMultiWord.toString();
+                } else {
+                    npcItemName = command.getFourthWord();
+                }
+
                 if (!command.hasSecondWord()) {
                     System.out.println("Trade what?");
                     break;
@@ -218,7 +234,7 @@ public class ZorkPrisonGame {
                 }
 
                 String playerItemName = command.getSecondWord();
-                String npcItemName = command.getFourthWord();
+
 
                 Item playerItem = null;
                 for (Item item : player.getInventory()) {
@@ -240,7 +256,7 @@ public class ZorkPrisonGame {
                     System.out.println("There's no one here to trade with.");
                     break;
                 }
-                    // --- Find NPC's item ---
+
                 Item npcItem = null;
                 for (Item item : npc.getInventory()) {
                     if (item.getName().equalsIgnoreCase(npcItemName)) {
@@ -255,7 +271,7 @@ public class ZorkPrisonGame {
 
                 npc.giveToPlayer(player, npc, npcItem);     // NPC gives their item to player
                 npc.receiveFromPlayer(player, npc, playerItem); // NPC receives player's item
-                System.out.println("You traded your " + playerItemName + " for " + npc.getName() + "'s " + npcItemName + ".");
+                System.out.println("You traded your " + playerItemName + " for " + npc.getName() + "'s " + npcItem.getDescription() + ".");
                 break;
             case "talk":
                 if (!command.hasSecondWord()) {
@@ -270,6 +286,18 @@ public class ZorkPrisonGame {
                     for(NPC Npc: currentRoom.getNPCs()){
                         if (Npc.getName().equalsIgnoreCase(NpcName)){
                             System.out.println(Npc.getDialogue());
+                        }
+                    }
+                }
+                break;
+            case "drive":
+                if(!command.hasSecondWord()) {
+                    player.setCurrentRoom(pub);
+                    System.out.println("You are " +player.getCurrentRoom().getDescription());
+                    if (!getCurrentRoom().getItems().isEmpty()) {
+                        System.out.println("You see the following items:");
+                        for (Item item : getCurrentRoom().getItems()) {
+                            System.out.println(item.getDescription());
                         }
                     }
                 }
@@ -314,6 +342,10 @@ public class ZorkPrisonGame {
                 }
             }
         }
+    }
+
+    public void Save(){
+
     }
 
     public static void main(String[] args) {

@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Character {
+public class Character implements Serializable {
     private final String name;
     public Room currentRoom;
     private ArrayList<Item> inventory;

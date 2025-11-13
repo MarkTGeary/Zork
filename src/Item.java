@@ -2,10 +2,9 @@ public class Item {
     private String description;
     private String name;
     private String location;
-    private int id;
     private boolean isVisible;
 
-    public Item(String name, String description, boolean isVisisble) {
+    public Item(String name, String description, boolean isVisible) {
         this.name = name;
         this.description = description;
         this.isVisible = true;
@@ -35,13 +34,6 @@ public class Item {
         this.location = location;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public boolean isVisible() {
         return isVisible;
@@ -51,4 +43,10 @@ public class Item {
         isVisible = visible;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }
+

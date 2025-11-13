@@ -9,13 +9,14 @@ public class CommandWords {
         validCommands.put("go", "Move to another room");
         validCommands.put("quit", "End the game");
         validCommands.put("help", "Show help");
-        validCommands.put("look", "Look around");
         validCommands.put("drink", "Take a sip of your drink");
         validCommands.put("inventory", "Check inventory");
         validCommands.put("take", "Take an item");
         validCommands.put("drop", "Drop an item");
         validCommands.put("trade", "Trade an item with an NPC");
         validCommands.put("talk", "Talk to an NPC");
+        validCommands.put("drive", "Drive to the pub");
+
 
     }
 
