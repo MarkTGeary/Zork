@@ -1,3 +1,5 @@
 public class GameState {
-    enum GameStateEnum {}
+    enum GameStateEnum {
+        PLAYING, LOST, WON, GAME_OVER
+    }
 }

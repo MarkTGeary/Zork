@@ -16,6 +16,11 @@ public class CommandWords {
         validCommands.put("trade", "Trade an item with an NPC");
         validCommands.put("talk", "Talk to an NPC");
         validCommands.put("drive", "Drive to the pub");
+        validCommands.put("save", "Save the game");
+        validCommands.put("load", "Load the game");
+        validCommands.put("enter", "enter a code");
+        validCommands.put("show", "show access code");
+
 
 
     }

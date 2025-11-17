@@ -1,9 +1,11 @@
+import com.sun.prism.shader.Texture_LinearGradient_PAD_AlphaTest_Loader;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
@@ -13,6 +15,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.ComboBox;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TextInputDialog;
+import java.util.Optional;
 
 public class Main extends Application {
 
@@ -70,11 +74,16 @@ public class Main extends Application {
         Button east = new Button("Go East");
         Button takeItem = new Button("Take Item");
 
+        Button saveProgress = new Button("Save Game");
+        Button loadProgress = new Button("Load Game");
         Button inventory = new Button("Inventory");
+        Button talkToNPC = new Button("Talk to NPC");
+
+        Button CodeEnter = new Button("   Enter \nKey/Code");
 
         double centerX = 150;
         double centerY = 120;
-        double spacing = 100;
+        double spacing = 105;
 
         north.setLayoutX(centerX);
         north.setLayoutY(centerY - spacing);
@@ -92,11 +101,24 @@ public class Main extends Application {
         takeItem.setLayoutY(centerY);
 
         inventory.setLayoutX(centerX * 3);
-        inventory.setLayoutY(centerY-spacing);
+        inventory.setLayoutY(centerY);
+
+        talkToNPC.setLayoutX(spacing + (centerX*3));
+        talkToNPC.setLayoutY(centerY);
+
+        saveProgress.setLayoutX(centerX * 3);
+        saveProgress.setLayoutY(centerY -  spacing);
+
+        loadProgress.setLayoutX(spacing + (centerX * 3));
+        loadProgress.setLayoutY(centerY - spacing);
+
+        CodeEnter.setLayoutX(spacing + (centerX * 3));
+        CodeEnter.setLayoutY(centerY+spacing);
 
 
-        for (Button b : new Button[]{north, south, west, east, takeItem, inventory}) {
-            b.setPrefSize(90, 90);
+
+        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter}) {
+            b.setPrefSize(95, 95);
         }
 
         north.setOnAction(e -> {
@@ -150,7 +172,39 @@ public class Main extends Application {
             process("inventory");
         });
 
+        talkToNPC.setOnAction(e -> {
+            process("talk");
+        });
 
+        saveProgress.setOnAction(e -> {
+            process("save");
+        });
+
+        loadProgress.setOnAction(e -> {
+            process("load");
+        });
+
+        CodeEnter.setOnAction(e -> {
+            TextInputDialog choice = new TextInputDialog();
+            choice.setHeaderText("Key or Code?");
+            Optional<String> choiceResult = choice.showAndWait();
+            if (choiceResult.isPresent()) {
+                if (choiceResult.get().equalsIgnoreCase("key")) {
+                    process("enter key");
+                } else if (choiceResult.get().equalsIgnoreCase("code")) {
+                    TextInputDialog dialog = new TextInputDialog();
+                    dialog.setHeaderText("Enter Code");
+                    Optional<String> result = dialog.showAndWait();
+
+                    if (result.isPresent()) {
+                        String enteredCode = result.get();
+                        process("enter code " + enteredCode);
+                    }
+                }
+            }else {
+                System.out.println("Error: please enter 'key' or 'code'");
+            }
+        });
         imageView = new ImageView();
         imageView.setFitHeight(480);
         imageView.setFitWidth(600);
@@ -159,7 +213,7 @@ public class Main extends Application {
 
         updateRoomImage(game.getCurrentRoom());
 
-        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView);
+        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter);
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
         stage.setScene(scene);
@@ -175,7 +229,7 @@ public class Main extends Application {
         Image pubImage = new Image("file:img/pub.png");
         Image infirmaryImage = new Image("file:img/infirmary.png");
         Image cafeteriaImage = new  Image("file:img/cafeteria.png");
-        Image wardenOfficeImage = new Image("file:img/wardenOffice.jpg");
+        Image wardenOfficeImage = new Image("file:img/wardenOffice.png");
         Image securityRoomImage = new Image("file:img/securityRoom.png");
         Image kitchenImage = new Image("file:img/kitchen.png");
         Image guardStationImage = new Image("file:img/guardStation.png");

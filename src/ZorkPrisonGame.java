@@ -12,12 +12,15 @@ Help system: Lists valid commands to guide the player.
 Overall, it recreates the classic Zork interactive fiction experience with a university-themed setting, 
 emphasizing exploration and simple command-driven gameplay
 */
+import java.io.*;
 import java.util.ArrayList;
 
 public class ZorkPrisonGame {
     private Parser parser;
     private Character player;
     private Room pub;
+    private Room cell;
+    Item key;
 
     public ZorkPrisonGame() {
         createRooms();
@@ -25,21 +28,24 @@ public class ZorkPrisonGame {
     }
 
     private void createRooms() {
-        Room cell, yard, guardStation, corridor1, corridor2, infirmary, securityRoom;
-        Room storageRoom, wardenOffice, kitchen, cafeteria, prisonExit, BobCell;
+        Room yard, guardStation, corridor1, infirmary;
+        Room storageRoom, kitchen, wardenOffice, cafeteria, prisonExit, BobCell;
+        LockedRoom corridor2;
+        KeyLockedRoom securityRoom;
+        Alarm alarm = new Alarm();
 
         // create rooms
         cell = new Room("cell","inside your prison cell");
         corridor1 = new Room("corridor1","inside a corridor");
         yard = new Room("yard","outside in the yard");
         guardStation = new Room("guardStation","inside the guard station");
-        corridor2 = new Room("corridor2","inside a corridor");
+        prisonExit = new Room("prisonExit","at the prison exit");
+        corridor2 = new LockedRoom("corridor2","inside a corridor", "south", prisonExit, alarm);
         kitchen = new Room("kitchen","inside the kitchen");
         cafeteria = new Room("cafeteria","inside the cafeteria");
-        prisonExit = new Room("prisonExit","at the prison exit");
         pub = new Room("pub","inside the pub");
         wardenOffice = new Room("wardenOffice","inside the warden office");
-        securityRoom = new Room("securityRoom","inside the security room");
+        securityRoom = new KeyLockedRoom("securityRoom","inside the security room", "south", wardenOffice, alarm);
         storageRoom = new Room("storageRoom","inside the storage room");
         infirmary = new Room("infirmary","inside the infirmary");
         BobCell = new Room("bobCell","inside Bob's Cell");
@@ -72,19 +78,19 @@ public class ZorkPrisonGame {
         guardStation.setExit("north", corridor1);
         guardStation.setExit("south", corridor2);
         guardStation.setExit("east", infirmary);
-        guardStation.setHasAlarm(true);
 
         infirmary.setExit("west", guardStation);
+        key = new Item("key", "key", true);
+        infirmary.addItemToRoom(key);
 
         corridor2.setExit("north", guardStation);
-        corridor2.setExit("south", prisonExit);
         corridor2.setExit("west", securityRoom);
+        corridor2.setAccessCode("25469371");
 
         securityRoom.setExit("east", corridor2);
-        securityRoom.setExit("south", wardenOffice);
 
         wardenOffice.setExit("north", securityRoom);
-        Item AccessCode = new Item("accessCode", "Access Code to exit", true);
+        Item AccessCode = new Item("accessCode", "Access Code to exit", true, "25469371");
         wardenOffice.addItemToRoom(AccessCode);
 
         Item car = new Item("car", "car", true);
@@ -302,6 +308,35 @@ public class ZorkPrisonGame {
                     }
                 }
                 break;
+            case "save":
+                Save("Saved");
+                break;
+            case "load":
+                Load("Saved");
+                break;
+            case "enter":
+                if(!command.hasSecondWord()) {
+                    System.out.println("Enter what?");
+                } else if((command.getSecondWord().equalsIgnoreCase("code") && command.hasFourthWord()) || (command.getSecondWord().equalsIgnoreCase("key") && command.hasThirdWord())) {
+                    System.out.println("Use syntax 'enter code <code>' or 'enter key'");
+                } else if (command.getSecondWord().equalsIgnoreCase("key") && !command.hasThirdWord()) {
+                    KeyLockedRoom room = (KeyLockedRoom) player.getCurrentLockedRoom();
+                    room.unlockRoom(player, key);
+                } else if (command.getSecondWord().equalsIgnoreCase("code")) {
+                    LockedRoom currentRoom = player.getCurrentLockedRoom();
+                    String attemptCode = command.getThirdWord();
+                    if (currentRoom instanceof LockedRoom lockedRoom) {
+                        lockedRoom.enterCode(attemptCode,player, cell);
+                    }
+                } else {
+                    System.out.println("Invalid syntax.");
+                }
+                break;
+            case "show":
+                if (command.getSecondWord().equals("code")) {
+                    player.showCode();
+                }
+                break;
             default:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -344,8 +379,24 @@ public class ZorkPrisonGame {
         }
     }
 
-    public void Save(){
+    public void Save(String filename){
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))){
+            out.writeObject(player);
+            out.close();
+            System.out.println("Player Saved");
+        } catch (IOException e) {
+            System.out.println("IOException is caught");
+        }
+    }
 
+    public void Load(String filename) {
+        try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))){
+            player = (Character) in.readObject();
+        } catch(IOException e){
+            System.out.println("IOException is caught");
+        } catch(ClassNotFoundException e){
+            System.out.println("ClassNotFoundException is caught");
+        }
     }
 
     public static void main(String[] args) {

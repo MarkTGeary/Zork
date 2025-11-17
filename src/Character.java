@@ -20,6 +20,13 @@ public class Character implements Serializable {
         return currentRoom;
     }
 
+    public LockedRoom getCurrentLockedRoom() {
+        if (currentRoom instanceof LockedRoom) {
+            return (LockedRoom) currentRoom;
+        }
+        return null; // or throw an exception if you prefer
+    }
+
     public void setCurrentRoom(Room room) {
         this.currentRoom = room;
     }
@@ -57,9 +64,24 @@ public class Character implements Serializable {
         }
         return false;
     }
+    public void showCode() {
+        boolean found = false;
+        for (Item item : inventory) {
+            if (item.getName().equalsIgnoreCase("accessCode")) {
+                System.out.println("Code is: " + item.getCode());
+                found = true;
+                return;
+            }
+        }
+        if (!found) {
+            System.out.println("You don't have any access code.");
+        }
+    }
+
 }
 
-class NPC extends Character {
+
+class NPC extends Character implements Serializable {
     private String introduction;
     private String dialogue;
     public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String introduction, String dialogue) {
