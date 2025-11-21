@@ -10,16 +10,17 @@ public class Item implements Serializable {
     public Item(String name, String description, boolean isVisible, String Code) {
         this.name = name;
         this.description = description;
-        this.isVisible = true;
+        this.isVisible = isVisible;
         this.Code = Code;
     }
 
     public Item(String name, String description, boolean isVisible){
         this.name = name;
         this.description = description;
-        this.isVisible = true;
+        this.isVisible = isVisible;
     }
 
+    //Setters and Getters
     public String getDescription() {
         return description;
     }
@@ -57,6 +58,7 @@ public class Item implements Serializable {
         return Code;
     }
 
+    //For access code
     public void showCode(Character player){
         if(player.hasItem(this.name)){
             System.out.println("Code is : " + this.Code);
@@ -67,6 +69,7 @@ public class Item implements Serializable {
     }
 
 
+    //For Stringbuilder for multi word items
     @Override
     public String toString() {
         return name;

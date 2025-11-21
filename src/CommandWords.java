@@ -18,7 +18,7 @@ public class CommandWords {
         validCommands.put("drive", "Drive to the pub");
         validCommands.put("save", "Save the game");
         validCommands.put("load", "Load the game");
-        validCommands.put("enter", "enter a code");
+        validCommands.put("enter", "enter a code/key");
         validCommands.put("show", "show access code");
 
 
@@ -30,9 +30,8 @@ public class CommandWords {
     }
 
     public void showAll() {
-        System.out.print("Valid commands are: ");
         for (String command : validCommands.keySet()) {
-            System.out.print(command + " ");
+            System.out.println(command + " ");
         }
         System.out.println();
     }

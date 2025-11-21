@@ -70,7 +70,7 @@ public class Character implements Serializable {
             if (item.getName().equalsIgnoreCase("accessCode")) {
                 System.out.println("Code is: " + item.getCode());
                 found = true;
-                return;
+                break;
             }
         }
         if (!found) {

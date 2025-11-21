@@ -1,4 +1,4 @@
-import com.sun.prism.shader.Texture_LinearGradient_PAD_AlphaTest_Loader;
+//
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Rectangle2D;
@@ -17,6 +17,7 @@ import javafx.scene.control.ComboBox;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextInputDialog;
 import java.util.Optional;
+import javafx.application.Platform;
 
 public class Main extends Application {
 
@@ -80,6 +81,9 @@ public class Main extends Application {
         Button talkToNPC = new Button("Talk to NPC");
 
         Button CodeEnter = new Button("   Enter \nKey/Code");
+        Button helpButton =  new Button("Help");
+
+        Button quitButton = new Button("Quit");
 
         double centerX = 150;
         double centerY = 120;
@@ -115,9 +119,16 @@ public class Main extends Application {
         CodeEnter.setLayoutX(spacing + (centerX * 3));
         CodeEnter.setLayoutY(centerY+spacing);
 
+        helpButton.setLayoutX((centerX * 3));
+        helpButton.setLayoutY(centerY+spacing);
+
+        quitButton.setLayoutX(spacing + (centerX * 3));
+        quitButton.setLayoutY(centerY + (2 * spacing));
 
 
-        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter}) {
+
+
+        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton}) {
             b.setPrefSize(95, 95);
         }
 
@@ -135,10 +146,6 @@ public class Main extends Application {
                 });
         takeItem.setOnAction(e -> {
             Room currentRoom = game.getCurrentRoom();
-            if (currentRoom == null) {
-                System.out.println("Error: player is not in a room.");
-                return;
-            }
 
             if (currentRoom.getItems().isEmpty()) {
                 System.out.println("There is nothing to take here.");
@@ -173,7 +180,12 @@ public class Main extends Application {
         });
 
         talkToNPC.setOnAction(e -> {
-            process("talk");
+            Room currentRoom = game.getCurrentRoom();
+            String x = null;
+            if (!currentRoom.getNPCs().isEmpty()) {
+                x = currentRoom.getNPCs().get(0).getName();
+            }
+            process("talk to " + x);
         });
 
         saveProgress.setOnAction(e -> {
@@ -205,6 +217,15 @@ public class Main extends Application {
                 System.out.println("Error: please enter 'key' or 'code'");
             }
         });
+
+        helpButton.setOnAction(e -> {
+            process("help");
+        });
+
+        quitButton.setOnAction(e -> {
+            process("quit");
+            Platform.exit();
+        });
         imageView = new ImageView();
         imageView.setFitHeight(480);
         imageView.setFitWidth(600);
@@ -213,7 +234,7 @@ public class Main extends Application {
 
         updateRoomImage(game.getCurrentRoom());
 
-        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter);
+        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter, helpButton, quitButton);
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
         stage.setScene(scene);

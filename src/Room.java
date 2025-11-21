@@ -1,15 +1,14 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Room implements Serializable {
     private String name;
     private String description;
     private Map<String, Room> exits; // Map direction to neighboring Room
-    private List<Item> items; // List of items in the room
-    private List<NPC> npcs;
+    private ArrayList<Item> items; // List of items in the room
+    private ArrayList<NPC> npcs;
 
     public Room(String name, String description) {
         this.name = name;
@@ -64,16 +63,22 @@ public class Room implements Serializable {
         npcs.add(npc);
     }
 
-    public List<NPC> getNPCs() {
+    public ArrayList<NPC> getNPCs() {
         return npcs;
     }
 
+    public void onEnter(Character player, Room room, StateMethods status) {
+    }
+
+
 }
 class Alarm implements Serializable {
-    public static void ring(Character player, Room cell){
+    public static void ring(Character player, Room cell, StateMethods state) {
         System.out.println("Oh no! You have set off the alarm!");
         player.setCurrentRoom(cell);
-        //Set Enum Game Lose that restarts it all
+        state.setGameState(GameState.LOST);
+        SoundStuff.playSound("audio\\OofNoise.wav");
+
     }
 }
 class LockedRoom extends Room implements Serializable {
@@ -87,8 +92,8 @@ class LockedRoom extends Room implements Serializable {
         this.alarm = alarm;
         this.lockedDirection = lockedDirection;
         this.lockedDestination = lockedDestination;
-
     }
+
 
     public String getAccessCode(){
         return accessCode;
@@ -98,7 +103,7 @@ class LockedRoom extends Room implements Serializable {
     }
 
 
-    public void enterCode(String code, Character player, Room cell) {
+    public void enterCode(String code, Character player, Room cell, StateMethods state) {
         if (code.equalsIgnoreCase(accessCode)) {
             System.out.println("You have entered the correct code!");
             setExit(lockedDirection, lockedDestination);
@@ -106,7 +111,7 @@ class LockedRoom extends Room implements Serializable {
             System.out.println("Exits: " + getExitString());
         }
         else {
-            Alarm.ring(player, cell);
+            Alarm.ring(player, cell, state);
         }
     }
 }
@@ -130,6 +135,29 @@ class KeyLockedRoom extends LockedRoom implements Serializable {
             System.out.println("Exits: " + getExitString());
         } else {
             System.out.println("You don't have the key for the door.");
+        }
+    }
+}
+
+class AlarmedRoom extends Room implements Serializable {
+    Alarm alarm;
+    Item item;
+    AlarmedRoom(String name, String description, Alarm alarm, Item item) {
+        super(name, description);
+        this.alarm = alarm;
+        this.item = item;
+    }
+    @Override
+    public void onEnter(Character player, Room room, StateMethods status) {
+            boolean hasUniform = false;
+            for (Item item2 : player.getInventory()) {
+                if (item2.getName().equalsIgnoreCase(item.getName())) {
+                    hasUniform = true;
+                }
+            }
+            if (!hasUniform) {
+                System.out.println("You just entered the guard station without a uniform!");
+                Alarm.ring(player, room, status);
         }
     }
 }
