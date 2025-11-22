@@ -22,6 +22,7 @@ public class ZorkPrisonGame {
     Item key;
     public Character player;
     private StateMethods status;
+    Vehicle car;
 
 
     public ZorkPrisonGame() {
@@ -29,7 +30,6 @@ public class ZorkPrisonGame {
         parser = new Parser();
         status = new StateMethods(player, cell);
         status.setGameState(GameState.PLAYING);
-        SoundStuff.playSound("audio\\BackgroundNoise.wav");
     }
 
     private void createRooms() {
@@ -104,13 +104,13 @@ public class ZorkPrisonGame {
         Item AccessCode = new Item("accessCode", "Access Code to exit", true, "25469371");
         wardenOffice.addItemToRoom(AccessCode);
 
-        Item car = new Item("car", "car", true);
+        car = new Vehicle("car", "car", "audio\\CarNoise.wav");
         prisonExit.addItemToRoom(car);
 
         Item beer = new Item("beer", "beer", true);
         pub.addItemToRoom(beer);
 
-        player = new Character("player", cell, new ArrayList<>());
+        player = new Character("player", cell, new ArrayList<>(), false);
 
         NPC prisoner = new NPC("Bob", BobCell, new ArrayList<>(),
                 "You see another prisoner named Bob. He looks like he has lots to say.",
@@ -146,7 +146,7 @@ public class ZorkPrisonGame {
 
     public boolean processCommand(Command command) {
         String commandWord = command.getCommandWord();
-
+        CommandTypes methods = new CommandTypes(player, status);
         if (commandWord == null) {
             System.out.println("I don't understand your command...");
             return false;
@@ -160,169 +160,27 @@ public class ZorkPrisonGame {
                 goRoom(command);
                 break;
             case "quit":
-                if (command.hasSecondWord()) {
-                    System.out.println("Quit what?");
-                    return false;
-                } else {
-                    return true; // signal to quit
-                }
+                methods.quitCommand(command);
             case "drink":
-                if (player.hasItem("beer")) {
-                    System.out.println("You have reached heaven.");
-                    status.setGameState(GameState.WON);
-                } else {
-                    System.out.println("You don't have a beer to drink.");
-                }
+                methods.drinkCommand(command);
                 break;
             case "inventory":
-                System.out.print("You are carrying:");
-                if (player.getInventory().isEmpty()) {
-                    System.out.println(" nothing.");
-                } 
-                else {                    
-                    for (Item item : player.getInventory()) {
-                        System.out.println("- " + item.getName());
-                    }
-                }
+                methods.inventoryCommand(command);
                 break;
             case "take":
-                if (!command.hasSecondWord()) {
-                    System.out.println("Take what?");
-                } else {
-                    String itemName = command.getSecondWord();
-                    Room currentRoom = player.getCurrentRoom();
-                    Item itemToTake = null;
-                    for (Item item : currentRoom.getItems()) {
-                        if (item.getName().equalsIgnoreCase(itemName)) {
-                            if(item.isVisible()) {
-                                itemToTake = item;
-                                break;
-                            } else {
-                                itemName = "item";
-                            }
-                        }
-                    }
-                    if (itemToTake != null) {
-                        player.addItemToInventory(itemToTake);
-                        currentRoom.removeItemFromRoom(itemToTake);
-                    } else {
-                        System.out.println("There is no " + itemName + " here.");
-                    }
-                }
+                methods.takeCommand(command);
                 break;
             case "drop":
-                if (!command.hasSecondWord()) {
-                    System.out.println("Drop what?");
-                } else {
-                    String itemName = command.getSecondWord();
-                    Item itemToDrop = null;
-                    for (Item item : player.getInventory()) {
-                        if (item.getName().equalsIgnoreCase(itemName)) {
-                            itemToDrop = item;
-                            break;
-                        }
-                    }
-                    if (itemToDrop != null) {
-                        player.dropFromInventory(itemToDrop);
-                        player.getCurrentRoom().addItemToRoom(itemToDrop);
-                        System.out.println("You dropped the " + itemName + ".");
-                    } else {
-                        System.out.println("You don't have a " + itemName + ".");
-                    }
-                }
+                methods.dropCommand(command);
                 break;
             case "trade":
-                String npcItemName;
-                if(command.hasFifthWord()) {
-                    StringBuilder fixMultiWord = new StringBuilder();
-                    fixMultiWord.append(command.getFourthWord());
-                    fixMultiWord.append(command.getFifthWord());
-                    npcItemName = fixMultiWord.toString();
-                } else {
-                    npcItemName = command.getFourthWord();
-                }
-
-                if (!command.hasSecondWord()) {
-                    System.out.println("Trade what?");
-                    break;
-                }
-                else if (!command.hasThirdWord() || !command.getThirdWord().equalsIgnoreCase("for")) {
-                    System.out.println("Invalid syntax. Use: 'trade <your item> for <their item>'.");
-                    break;
-                }
-                else if (!command.hasFourthWord()) {
-                    System.out.println("Trade " + command.getSecondWord() + " for what?");
-                    break;
-                }
-
-                String playerItemName = command.getSecondWord();
-
-
-                Item playerItem = null;
-                for (Item item : player.getInventory()) {
-                    if (item.getName().equalsIgnoreCase(playerItemName)) {
-                        playerItem = item;
-                        break;
-                    }
-                }
-                if (playerItem == null) {
-                    System.out.println("You don't have a " + playerItemName + " to trade.");
-                    break;
-                }
-                NPC npc = null;
-                for (NPC character : player.getCurrentRoom().getNPCs()) {
-                    npc = character;
-                    break;
-                }
-                if (npc == null) {
-                    System.out.println("There's no one here to trade with.");
-                    break;
-                }
-
-                Item npcItem = null;
-                for (Item item : npc.getInventory()) {
-                    if (item.getName().equalsIgnoreCase(npcItemName)) {
-                        npcItem = item;
-                        break;
-                    }
-                }
-                if (npcItem == null) {
-                    System.out.println(npc.getName() + " doesn't have a " + npcItemName + ".");
-                    break;
-                }
-
-                npc.giveToPlayer(player, npc, npcItem);     // NPC gives their item to player
-                npc.receiveFromPlayer(player, npc, playerItem); // NPC receives player's item
-                System.out.println("You traded your " + playerItemName + " for " + npc.getName() + "'s " + npcItem.getDescription() + ".");
+                methods.tradeCommand(command);
                 break;
             case "talk":
-                if (!command.hasSecondWord()) {
-                    System.out.println("Talk to who?");
-                }
-                else if (!command.hasThirdWord() || !command.getSecondWord().equalsIgnoreCase("to") || command.hasFourthWord()) {
-                    System.out.println("Invalid syntax. Use: 'talk to <NPC name>'");
-                }
-                else {
-                    Room currentRoom = player.getCurrentRoom();
-                    String NpcName = command.getThirdWord();
-                    for(NPC Npc: currentRoom.getNPCs()){
-                        if (Npc.getName().equalsIgnoreCase(NpcName)){
-                            System.out.println(Npc.getDialogue());
-                        }
-                    }
-                }
+                methods.talkCommand(command);
                 break;
             case "drive":
-                if(!command.hasSecondWord()) {
-                    player.setCurrentRoom(pub);
-                    System.out.println("You are " +player.getCurrentRoom().getDescription());
-                    if (!getCurrentRoom().getItems().isEmpty()) {
-                        System.out.println("You see the following items:");
-                        for (Item item : getCurrentRoom().getItems()) {
-                            System.out.println(item.getDescription());
-                        }
-                    }
-                }
+                methods.driveCommand(command, pub, car);
                 break;
             case "save":
                 Save("Saved");
@@ -331,7 +189,7 @@ public class ZorkPrisonGame {
                 Load("Saved");
                 break;
             case "enter":
-                CommandTypes.EnterCommand(command, player, key, cell, status);
+                methods.enterCommand(command, key, cell);
                 break;
             case "show":
                 if (command.getSecondWord().equals("code")) {
@@ -439,11 +297,6 @@ public class ZorkPrisonGame {
             System.out.println("Cannot currently load game");
         }
     }
-    /*public void resetGame(){
-        createRooms();
-        Character player = new Character();
-        state = new playingState();
-    }*/
 
     public static void main(String[] args) {
         ZorkPrisonGame game = new ZorkPrisonGame();

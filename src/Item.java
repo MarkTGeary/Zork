@@ -69,11 +69,34 @@ public class Item implements Serializable {
     }
 
 
-    //For Stringbuilder for multi word items
+    //For StringBuilder for multi-word items
     @Override
     public String toString() {
         return name;
     }
+
+}
+
+class Vehicle extends Item implements Serializable {
+    private String noise;
+    public Vehicle(String name, String description, String noise) {
+        super(name, description, true);
+        this.noise = noise;
+    }
+
+    public String getNoise() {
+        return noise;
+    }
+
+    public void carNoise(String noise) {
+        SoundStuff.playSound(noise);
+        try{
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+        e.printStackTrace();}
+    }
+
+
 
 }
 

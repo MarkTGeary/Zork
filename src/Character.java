@@ -5,11 +5,13 @@ public class Character implements Serializable {
     private final String name;
     public Room currentRoom;
     private ArrayList<Item> inventory;
+    private boolean inVehicle;
 
-    public Character(String name, Room startingRoom, ArrayList<Item> inventory) {
+    public Character(String name, Room startingRoom, ArrayList<Item> inventory, boolean inVehicle) {
         this.name = name;
         this.currentRoom = startingRoom;
         this.inventory = new ArrayList<>();
+        this.inVehicle = inVehicle;
     }
 
     public String getName() {
@@ -24,7 +26,7 @@ public class Character implements Serializable {
         if (currentRoom instanceof LockedRoom) {
             return (LockedRoom) currentRoom;
         }
-        return null; // or throw an exception if you prefer
+        return null;
     }
 
     public void setCurrentRoom(Room room) {
@@ -33,6 +35,14 @@ public class Character implements Serializable {
 
     public ArrayList<Item> getInventory() {
         return inventory;
+    }
+
+    public boolean getInVehicle() {
+        return inVehicle;
+    }
+
+    public void setInVehicle(boolean inVehicle) {
+        this.inVehicle = inVehicle;
     }
 
 
@@ -85,12 +95,13 @@ class NPC extends Character implements Serializable {
     private String introduction;
     private String dialogue;
     public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String introduction, String dialogue) {
-        super(name, startingRoom, inventory);
+        super(name, startingRoom, inventory, false);
         this.introduction = introduction;
         this.dialogue = dialogue;
     }
+
     public NPC(String name, Room startingRoom, String introduction, String dialogue) {
-        super(name, startingRoom, null);
+        super(name, startingRoom, null, false);
         this.introduction = introduction;
         this.dialogue = dialogue;
     }
