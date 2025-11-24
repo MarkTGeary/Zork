@@ -19,10 +19,12 @@ public class ZorkPrisonGame {
     private Parser parser;
     private Room cell;
     private Room pub;
+    private Room storageRoomCloset;
     Item key;
     public Character player;
     private StateMethods status;
     Vehicle car;
+    Item poison;
 
 
     public ZorkPrisonGame() {
@@ -30,11 +32,13 @@ public class ZorkPrisonGame {
         parser = new Parser();
         status = new StateMethods(player, cell);
         status.setGameState(GameState.PLAYING);
+        Thread backgroundMusicThread = new Thread(new backgroundSoundStuff("audio/backGroundMusic.wav"));
+        backgroundMusicThread.start();
+
     }
 
-    private void createRooms() {
-        Room yard, corridor1, infirmary, storageRoomCloset;
-        Room storageRoom, kitchen, wardenOffice, cafeteria, prisonExit, BobCell;
+    public void createRooms() {
+        Room yard, corridor1, infirmary, storageRoom, kitchen, wardenOffice, cafeteria, prisonExit, BobCell;
         LockedRoom corridor2;
         KeyLockedRoom securityRoom;
         Alarm alarm = new Alarm();
@@ -43,7 +47,7 @@ public class ZorkPrisonGame {
         cell = new Room("cell","inside your prison cell");
         corridor1 = new Room("corridor1","inside a corridor");
         yard = new Room("yard","outside in the yard");
-        Item guardUniform = new Item("GuardUniform", "guard uniform", true);
+        Item guardUniform = new Item("Guard Uniform", "guard uniform", true);
         AlarmedRoom guardStation = new AlarmedRoom("guardStation","inside the guard station", alarm, guardUniform);
         prisonExit = new Room("prisonExit","at the prison exit");
         corridor2 = new LockedRoom("corridor2","inside a corridor", "south", prisonExit, alarm);
@@ -114,15 +118,17 @@ public class ZorkPrisonGame {
 
         NPC prisoner = new NPC("Bob", BobCell, new ArrayList<>(),
                 "You see another prisoner named Bob. He looks like he has lots to say.",
-                "Bob Says: \n'You'll need a guard's uniform if you're trying to escape.\nI can get you one if you have something in return for me. \n" +
-                        "Rumour has it there's something valuable hidden in the yard.'");
+                "'You'll need a guard's uniform if you're trying to escape.\nI can get you one if you have something in return for me. \n" +
+                        "Rumour has it there's something valuable hidden in the yard.'", null, gold);
+        poison =  new Item("poison", "poison", true);
         NPC chef = new NPC("John", kitchen, new ArrayList<>(), "You meet John, the chef. He's been known to be helpful to the prisoners.",
-                "There was a rumour that there is gold hidden underneath the yard. You'll need to inject the guard on duty with this to avoid being caught.");
-        Item poison =  new Item("poison", "poison", true);
+                "There was a rumour that there is gold hidden underneath the yard. You'll need to inject the guard on duty with this to avoid being caught digging.", poison, null);
         kitchen.addNPC(chef);
         chef.addItemToInventory(poison);
         BobCell.addNPC(prisoner);
         prisoner.addItemToInventory(guardUniform);
+        NPC yardOfficer = new NPC("guard", yard, "A guard watches over the yard, ensuring order.", "Any funny business and you'll be right back to your cell");
+        yard.addNPC(yardOfficer);
     }
 
     public Room getCurrentRoom() {
@@ -197,10 +203,10 @@ public class ZorkPrisonGame {
                 }
                 break;
             case "dig":
-                digCommand(command);
-            /*case "restart":
-                ZorkPrisonGame newGame = new ZorkPrisonGame();
-                newGame.play();*/
+                methods.digCommand(command, cell);
+                break;
+            case "inject":
+                methods.injectCommand(command, poison);
             default:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -214,24 +220,6 @@ public class ZorkPrisonGame {
         parser.showCommands();
     }
 
-    private void digCommand(Command command) {
-        if(!command.hasSecondWord()) {
-            Room currentRoom = player.getCurrentRoom();
-            for (Item item : player.getInventory()) {
-                if (item.getName().equalsIgnoreCase("shovel")) {
-                    for (Item item2 : currentRoom.getItems()) {
-                        if (!item2.isVisible()) {
-                            player.addItemToInventory(item2);
-                        }
-                    }
-                } else {
-                    System.out.println("You don't have a shovel to dig with!");
-                }
-            }
-        } else {
-            System.out.println("Just use the word 'dig'.");
-        }
-    }
 
     private void goRoom(Command command) {
         if (!command.hasSecondWord()) {

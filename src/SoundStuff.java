@@ -15,6 +15,25 @@ public class SoundStuff {
             e.printStackTrace();
         }
     }
-
 }
 
+class backgroundSoundStuff implements Runnable {
+    private String filePath;
+    public backgroundSoundStuff(String filePath) {
+        this.filePath = filePath;
+    }
+    @Override
+    public void run() {
+        try {
+            File file = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            clip.start();
+        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+}

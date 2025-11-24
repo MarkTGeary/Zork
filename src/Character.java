@@ -94,10 +94,14 @@ public class Character implements Serializable {
 class NPC extends Character implements Serializable {
     private String introduction;
     private String dialogue;
-    public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String introduction, String dialogue) {
+    private Item itemToGive;
+    private Item wantedItem;
+    public NPC(String name, Room startingRoom, ArrayList<Item> inventory, String introduction, String dialogue, Item itemToGive, Item wantedItem) {
         super(name, startingRoom, inventory, false);
         this.introduction = introduction;
         this.dialogue = dialogue;
+        this.itemToGive = itemToGive;
+        this.wantedItem = wantedItem;
     }
 
     public NPC(String name, Room startingRoom, String introduction, String dialogue) {
@@ -105,6 +109,7 @@ class NPC extends Character implements Serializable {
         this.introduction = introduction;
         this.dialogue = dialogue;
     }
+
 
     @Override
     public void addItemToInventory(Item item) {
@@ -118,13 +123,37 @@ class NPC extends Character implements Serializable {
         return dialogue;
     }
 
-    public void giveToPlayer(Character player, NPC npc, Item item){
-        npc.dropFromInventory(item);
+    public Item getItemToGive() {
+        return itemToGive;
+    }
+
+    public Item getWantedItem(){
+        return wantedItem;
+    }
+
+    public void setWantedItem(Item wantedItem) {
+        this.wantedItem = wantedItem;
+    }
+
+    public void giveItemToUser(NPC npc, Character player, Item itemToGive){
+        if (itemToGive != null) {
+            for (Item item : npc.getInventory()) {
+                if (item.getName().equalsIgnoreCase(itemToGive.getName())) {
+                    npc.dropFromInventory(itemToGive);
+                    player.addItemToInventory(itemToGive);
+                    System.out.println("Here's "+ itemToGive.getName() +" to help you.");
+                }
+            }
+        }
+    }
+
+    public void giveToPlayer(Character player, Item item){
+        this.dropFromInventory(item);
         player.addItemToInventory(item);
     }
 
-    public void receiveFromPlayer(Character player, NPC npc, Item item){
-        npc.addItemToInventory(item);
+    public void receiveFromPlayer(Character player, Item item){
+        this.addItemToInventory(item);
         player.dropFromInventory(item);
     }
 

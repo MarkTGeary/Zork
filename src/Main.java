@@ -1,4 +1,3 @@
-//
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Rectangle2D;
@@ -15,7 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.ComboBox;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TextInputDialog;
+
 import java.util.Optional;
 import javafx.application.Platform;
 
@@ -84,6 +83,7 @@ public class Main extends Application {
         Button helpButton =  new Button("Help");
 
         Button quitButton = new Button("Quit");
+        Button tradeButton = new Button("Trade");
 
         double centerX = 150;
         double centerY = 120;
@@ -125,10 +125,13 @@ public class Main extends Application {
         quitButton.setLayoutX(spacing + (centerX * 3));
         quitButton.setLayoutY(centerY + (2 * spacing));
 
+        tradeButton.setLayoutX((centerX * 3));
+        tradeButton.setLayoutY(centerY + (2 * spacing));
 
 
 
-        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton}) {
+
+        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton, tradeButton}) {
             b.setPrefSize(95, 95);
         }
 
@@ -226,6 +229,11 @@ public class Main extends Application {
             process("quit");
             Platform.exit();
         });
+
+        tradeButton.setOnAction(e -> {
+
+            process("trade" +"" + "for" + "");
+        });
         imageView = new ImageView();
         imageView.setFitHeight(480);
         imageView.setFitWidth(600);
@@ -256,6 +264,7 @@ public class Main extends Application {
         Image guardStationImage = new Image("file:img/guardStation.png");
         Image prisonExitImage = new Image("file:img/prisonExit.jpg");
         Image corridor2Image = new Image("file:img/corridor2.png");
+        Image storageRoomClosetImage = new Image("file:img/closet.png");
 
         switch(room.getName().toLowerCase()) {
             case "cell":
@@ -299,6 +308,9 @@ public class Main extends Application {
                 break;
             case "corridor2":
                 imageView.setImage(corridor2Image);
+                break;
+            case "storageroomcloset":
+                imageView.setImage(storageRoomClosetImage);
                 break;
         }
 

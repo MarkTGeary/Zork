@@ -1,5 +1,8 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public interface GameStateMachine {
-    public void enter();
+    void enter();
 }
 
 class PlayingState implements GameStateMachine {
@@ -20,17 +23,18 @@ class WonState implements GameStateMachine {
 
 class LostState implements GameStateMachine {
     private Character player;
-    private Room upstairsStorageRoom;
+    private Room storageRoomCloset;
     private StateMethods State;
-    LostState(Character player, Room upstairsStorageRoom, StateMethods State) {
+    LostState(Character player, Room storageRoomCloset, StateMethods State) {
         this.player = player;
-        this.upstairsStorageRoom = upstairsStorageRoom;
+        this.storageRoomCloset = storageRoomCloset;
         this.State = State;
     }
     public void enter() {
-        for(Item item: player.getInventory()){
+        List<Item> items = new ArrayList<>(player.getInventory());
+        for(Item item: items){
             player.dropFromInventory(item);
-            upstairsStorageRoom.addItemToRoom(item);
+            storageRoomCloset.addItemToRoom(item);
         }
         System.out.println("You have had your items taken away and have been sent back to your cell!");
         System.out.println("Go find your items and continue your escape.");
@@ -44,11 +48,11 @@ class StateMethods {
     private GameStateMachine currentStateInterface;
 
     private Character player;
-    private Room upstairsStorageRoom;
+    private Room storageRoomCloset;
 
-    public StateMethods(Character player, Room upstairsStorageRoom) {
+    public StateMethods(Character player, Room storageRoomCloset) {
         this.player = player;
-        this.upstairsStorageRoom = upstairsStorageRoom;
+        this.storageRoomCloset = storageRoomCloset;
     }
 
     public void setGameState(GameState newState) {
@@ -64,7 +68,7 @@ class StateMethods {
             case WON:
                 return new WonState();
             case LOST:
-                return new LostState(player, upstairsStorageRoom, this);
+                return new LostState(player, storageRoomCloset, this);
         }
         return null;
     }

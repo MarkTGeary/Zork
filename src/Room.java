@@ -63,6 +63,10 @@ public class Room implements Serializable {
         npcs.add(npc);
     }
 
+    public void removeNPC(NPC npc){
+        npcs.remove(npc);
+    }
+
     public ArrayList<NPC> getNPCs() {
         return npcs;
     }
@@ -75,9 +79,12 @@ public class Room implements Serializable {
 class Alarm implements Serializable {
     public static void ring(Character player, Room cell, StateMethods state) {
         System.out.println("Oh no! You have set off the alarm!");
-        player.setCurrentRoom(cell);
         state.setGameState(GameState.LOST);
-        SoundStuff.playSound("audio\\OofNoise.wav");
+        Thread temp = new Thread(() -> {
+            SoundStuff.playSound("audio\\OofNoise.wav");
+        });
+        temp.start();
+        player.setCurrentRoom(cell);
 
     }
 }
@@ -153,6 +160,7 @@ class AlarmedRoom extends Room implements Serializable {
             for (Item item2 : player.getInventory()) {
                 if (item2.getName().equalsIgnoreCase(item.getName())) {
                     hasUniform = true;
+                    break;
                 }
             }
             if (!hasUniform) {
