@@ -22,6 +22,7 @@ public class Main extends Application {
 
     private ZorkPrisonGame game;
     private TextArea console;
+    private TextArea userType;
     private ImageView imageView;
 
     @Override
@@ -36,34 +37,38 @@ public class Main extends Application {
         double screenWidth = screenBounds.getWidth();
         double screenHeight = screenBounds.getHeight();
 
+        userType  = new TextArea();
+        userType.setEditable(true);
+        userType.setWrapText(true);
+        userType.setPrefSize(screenWidth-755, 100);
+        userType.setLayoutX(screenWidth - userType.getPrefWidth() - 5);
+        userType.setLayoutY(screenHeight - userType.getPrefHeight() - 220);
+        userType.appendText("\n> ");
+
         //Used AI to help set up console-ish Text Area
         console = new TextArea();
-        console.setEditable(true);
+        console.setEditable(false);
         console.setWrapText(true);
-        console.setPrefSize(600, 250);
+        console.setPrefSize(screenWidth-755, 150);
         console.setLayoutX(screenWidth - console.getPrefWidth() - 5);
         console.setLayoutY(screenHeight - console.getPrefHeight() - 70);
         String intro = game.printWelcome();
         console.appendText(intro);
-        console.appendText("\n> ");
 
         redirectSystemOut();
 
-        // --- Handle Enter key ---
-        console.setOnKeyPressed(e -> {
+        userType.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 e.consume();
-                String text = console.getText();
+                String text = userType.getText();
                 String[] lines = text.split("\n");
                 String lastLine = lines[lines.length - 1];
-                if (lastLine.startsWith(">")) {
-                    String commandText = lastLine.substring(1).trim();
-                    if (!commandText.isEmpty()) {
-                        process(commandText);
-                    }
+                String commandText = lastLine.substring(1).trim();
+                if (!commandText.isEmpty()) {
+                    process(commandText);
                 }
-                console.appendText("\n> ");
-                console.positionCaret(console.getText().length());
+                userType.appendText("\n> ");
+                userType.positionCaret(userType.getText().length());
             }
         });
 
@@ -77,62 +82,67 @@ public class Main extends Application {
         Button saveProgress = new Button("Save Game");
         Button loadProgress = new Button("Load Game");
         Button inventory = new Button("Inventory");
-        Button talkToNPC = new Button("Talk to NPC");
+        Button talkToNPC = new Button("Talk to npc");
 
         Button CodeEnter = new Button("   Enter \nKey/Code");
         Button helpButton =  new Button("Help");
 
         Button quitButton = new Button("Quit");
-        Button tradeButton = new Button("Trade");
+        Button tradeButton = new Button("Trade with npc");
 
-        double centerX = 150;
-        double centerY = 120;
-        double spacing = 105;
 
-        north.setLayoutX(centerX);
-        north.setLayoutY(centerY - spacing);
+        double baseX = 15;
+        double baseY = screenHeight - 230;
+        double gap = 90;
 
-        south.setLayoutX(centerX);
-        south.setLayoutY(centerY + spacing);
+        north.setLayoutX(baseX + gap);
+        north.setLayoutY(baseY - gap);
 
-        west.setLayoutX(centerX - spacing);
-        west.setLayoutY(centerY);
+        south.setLayoutX(baseX + gap);
+        south.setLayoutY(baseY + gap);
 
-        east.setLayoutX(centerX + spacing);
-        east.setLayoutY(centerY);
+        west.setLayoutX(baseX);
+        west.setLayoutY(baseY);
 
-        takeItem.setLayoutX(centerX);
-        takeItem.setLayoutY(centerY);
+        east.setLayoutX(baseX + 2 * gap);
+        east.setLayoutY(baseY);
 
-        inventory.setLayoutX(centerX * 3);
-        inventory.setLayoutY(centerY);
+        takeItem.setLayoutX(baseX + gap);
+        takeItem.setLayoutY(baseY);
 
-        talkToNPC.setLayoutX(spacing + (centerX*3));
-        talkToNPC.setLayoutY(centerY);
+        double miscStartX = baseX + 2 * gap + 120;
+        double row1Y = baseY - (gap/1.5);
+        double row2Y = baseY + (gap/1.5);
+        double miscGapX = 90;
 
-        saveProgress.setLayoutX(centerX * 3);
-        saveProgress.setLayoutY(centerY -  spacing);
+        inventory.setLayoutX(miscStartX);
+        inventory.setLayoutY(row1Y);
 
-        loadProgress.setLayoutX(spacing + (centerX * 3));
-        loadProgress.setLayoutY(centerY - spacing);
+        talkToNPC.setLayoutX(miscStartX + miscGapX);
+        talkToNPC.setLayoutY(row1Y);
 
-        CodeEnter.setLayoutX(spacing + (centerX * 3));
-        CodeEnter.setLayoutY(centerY+spacing);
+        saveProgress.setLayoutX(miscStartX + miscGapX * 2);
+        saveProgress.setLayoutY(row1Y);
 
-        helpButton.setLayoutX((centerX * 3));
-        helpButton.setLayoutY(centerY+spacing);
+        loadProgress.setLayoutX(miscStartX + miscGapX * 3);
+        loadProgress.setLayoutY(row1Y);
 
-        quitButton.setLayoutX(spacing + (centerX * 3));
-        quitButton.setLayoutY(centerY + (2 * spacing));
+        CodeEnter.setLayoutX(miscStartX);
+        CodeEnter.setLayoutY(row2Y);
 
-        tradeButton.setLayoutX((centerX * 3));
-        tradeButton.setLayoutY(centerY + (2 * spacing));
+        helpButton.setLayoutX(miscStartX + miscGapX * 2);
+        helpButton.setLayoutY(row2Y);
 
+        quitButton.setLayoutX(miscStartX + miscGapX * 3);
+        quitButton.setLayoutY(row2Y);
+
+        tradeButton.setLayoutX(miscStartX + miscGapX);
+        tradeButton.setLayoutY(row2Y);
 
 
 
         for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton, tradeButton}) {
-            b.setPrefSize(95, 95);
+            b.setPrefSize(95, 90);
         }
 
         north.setOnAction(e -> {
@@ -231,18 +241,36 @@ public class Main extends Application {
         });
 
         tradeButton.setOnAction(e -> {
+            Room currentRoom = game.getCurrentRoom();
+            NPC npc = currentRoom.getNPCs().getFirst();
+            Item item = npc.getInventory().getFirst();
+            ObservableList<Item> itemChoices = FXCollections.observableArrayList(game.player.getInventory());
+            ComboBox<Item> comboBox = new ComboBox<>(itemChoices);
+            comboBox.setPromptText("Choose an Item");
 
-            process("trade" +"" + "for" + "");
+            comboBox.setLayoutX(150);
+            comboBox.setLayoutY(320);
+
+            root.getChildren().add(comboBox);
+
+            comboBox.setOnAction(event -> {
+                Item selected = comboBox.getValue();
+                if (selected != null) {
+                    System.out.println("Selected: " + selected.getName());
+                    process("trade " + selected.getName() + " for " + item.getName());
+                    root.getChildren().remove(comboBox);
+                }
+            });
         });
         imageView = new ImageView();
         imageView.setFitHeight(480);
-        imageView.setFitWidth(600);
-        imageView.setLayoutX(screenWidth - imageView.getFitWidth() - 5);
+        imageView.setFitWidth(750);
+        imageView.setLayoutX(0);
         imageView.setLayoutY(0);
 
         updateRoomImage(game.getCurrentRoom());
 
-        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter, helpButton, quitButton);
+        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter, helpButton, quitButton, tradeButton, userType);
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
         stage.setScene(scene);
@@ -338,6 +366,11 @@ public class Main extends Application {
                 super.println(x);
                 console.appendText(x + "\n");
             }
+            /*@Override
+            public void print(String x) {
+                super.print(x);
+                console.appendText(x +" ");
+            }*/
         };
         System.setOut(printStream);
     }

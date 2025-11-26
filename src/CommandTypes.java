@@ -57,8 +57,10 @@ public class CommandTypes {
         else {
             Room currentRoom = player.getCurrentRoom();
             String NpcName = command.getThirdWord();
+            boolean found = false;
             for(NPC Npc: currentRoom.getNPCs()){
                 if (Npc.getName().equalsIgnoreCase(NpcName)){
+                    found = true;
                     System.out.println(Npc.getName() + " says: ");
                     System.out.println(Npc.getDialogue());
                     Item item = Npc.getItemToGive();
@@ -66,6 +68,9 @@ public class CommandTypes {
                         Npc.giveItemToUser(Npc, player, item);
                     }
                 }
+            }
+            if(!found){
+                System.out.println("There is nobody to talk with here!");
             }
         }
     }
@@ -105,7 +110,7 @@ public class CommandTypes {
                         itemToTake = item;
                         break;
                     } else {
-                        itemName = "item";
+                        itemName = "items to be seen";
                     }
                 }
             }

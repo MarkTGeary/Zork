@@ -30,7 +30,7 @@ public class ZorkPrisonGame {
     public ZorkPrisonGame() {
         createRooms();
         parser = new Parser();
-        status = new StateMethods(player, cell);
+        status = new StateMethods(player, storageRoomCloset);
         status.setGameState(GameState.PLAYING);
         Thread backgroundMusicThread = new Thread(new backgroundSoundStuff("audio/backGroundMusic.wav"));
         backgroundMusicThread.start();
