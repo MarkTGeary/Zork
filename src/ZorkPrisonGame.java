@@ -25,6 +25,7 @@ public class ZorkPrisonGame {
     private StateMethods status;
     Vehicle car;
     Item poison;
+    private HintMethods hintStatus;
 
 
     public ZorkPrisonGame() {
@@ -32,11 +33,14 @@ public class ZorkPrisonGame {
         parser = new Parser();
         status = new StateMethods(player, storageRoomCloset);
         status.setGameState(GameState.PLAYING);
-        Thread backgroundMusicThread = new Thread(new backgroundSoundStuff("audio/backGroundMusic.wav"));
+        hintStatus = new HintMethods();
+        hintStatus.setHintLevels(HintLevels.LEVEL1);
+        Thread backgroundMusicThread = new Thread(new BackgroundSoundStuff("audio/prisonMusic.wav"));
         backgroundMusicThread.start();
 
     }
 
+    //Where Rooms, Items, and Characters are initialised
     public void createRooms() {
         Room yard, corridor1, infirmary, storageRoom, kitchen, wardenOffice, cafeteria, prisonExit, BobCell;
         LockedRoom corridor2;
@@ -150,9 +154,10 @@ public class ZorkPrisonGame {
         return ("Welcome to the Prison Escape! \nExplore the prison to find items to help you escape. \nDon't get caught by the guards!\n" + player.getCurrentRoom().getLongDescription());
     }
 
+    //What happens when command words typed
     public boolean processCommand(Command command) {
         String commandWord = command.getCommandWord();
-        CommandTypes methods = new CommandTypes(player, status);
+        CommandTypes methods = new CommandTypes(player, status, hintStatus);
         if (commandWord == null) {
             System.out.println("I don't understand your command...");
             return false;
@@ -167,6 +172,7 @@ public class ZorkPrisonGame {
                 break;
             case "quit":
                 methods.quitCommand(command);
+                break;
             case "drink":
                 methods.drinkCommand(command);
                 break;
@@ -207,6 +213,13 @@ public class ZorkPrisonGame {
                 break;
             case "inject":
                 methods.injectCommand(command, poison);
+                break;
+            case "hint":
+                methods.hintCommand(command, hintStatus);
+                break;
+            case "music":
+                BackgroundSoundStuff.pauseUnpauseMusic();
+                break;
             default:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -221,6 +234,7 @@ public class ZorkPrisonGame {
     }
 
 
+    //Movement
     private void goRoom(Command command) {
         if (!command.hasSecondWord()) {
             System.out.println("Go where?");
@@ -263,6 +277,7 @@ public class ZorkPrisonGame {
         }
     }
 
+    //Serialisation saving game methods
     public void Save(String filename){
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))){
             out.writeObject(player);

@@ -6,12 +6,10 @@ public class Parser {
 
     public Parser() {
         commands = new CommandWords();
-        reader = new Scanner(System.in);
     }
 
-    public Command getCommand() {
+    public Command getCommand(String inputLine) {
         System.out.print("> ");
-        String inputLine = reader.nextLine();
 
         String word1 = null;
         String word2 = null;
@@ -42,6 +40,12 @@ public class Parser {
         } else {
             return new Command(null, word2, word3, word4, word5);
         }
+    }
+    public Command getCommand() {
+        reader = new Scanner(System.in);
+        System.out.print("> ");
+        String inputLine = reader.nextLine();
+        return getCommand(inputLine);
     }
 
 

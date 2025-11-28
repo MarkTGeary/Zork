@@ -45,7 +45,7 @@ public class Item implements Serializable {
         this.location = location;
     }
 
-
+    //Invisible Item Methods
     public boolean isVisible() {
         return isVisible;
     }
@@ -54,11 +54,11 @@ public class Item implements Serializable {
         isVisible = visible;
     }
 
+    //Access Code Methods
     public String getCode() {
         return Code;
     }
 
-    //For access code
     public void showCode(Character player){
         if(player.hasItem(this.name)){
             System.out.println("Code is : " + this.Code);
@@ -69,7 +69,7 @@ public class Item implements Serializable {
     }
 
 
-    //For StringBuilder for multi-word items
+    //For StringBuilder for multi-word items while trading
     @Override
     public String toString() {
         return name;

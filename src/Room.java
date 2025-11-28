@@ -1,12 +1,11 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Room implements Serializable {
     private String name;
     private String description;
-    private Map<String, Room> exits; // Map direction to neighboring Room
+    private HashMap<String, Room> exits; // Map direction to neighboring Room
     private ArrayList<Item> items; // List of items in the room
     private ArrayList<NPC> npcs;
 
@@ -14,8 +13,8 @@ public class Room implements Serializable {
         this.name = name;
         this.description = description;
         exits = new HashMap<>();
-        this.items = new ArrayList<>();
-        this.npcs = new ArrayList<>();
+        items = new ArrayList<>();
+        npcs = new ArrayList<>();
     }
 
     public String getName(){
@@ -43,11 +42,11 @@ public class Room implements Serializable {
     }
 
     public String getLongDescription() {
-        return "\nYou are " + description + ".\nExits: " + getExitString();
+        return "\nYou are " + description + ".\nExits: " + getExitString() +"\n";
     }
 
     public ArrayList<Item> getItems() {
-        return (ArrayList<Item>) items;
+        return items;
     }
 
     public void addItemToRoom(Item item) {
@@ -128,7 +127,7 @@ class KeyLockedRoom extends LockedRoom implements Serializable {
         super(name, description, lockedDirection, lockedDestination, alarm);
     }
 
-    public void unlockRoom(Character player, Item key){
+    public void unlockRoom(Character player, Item key, HintMethods hintStatus){
         boolean hasKey = false;
         for(Item item: player.getInventory()){
             if(item.getName().equalsIgnoreCase(key.getName())){
@@ -140,6 +139,7 @@ class KeyLockedRoom extends LockedRoom implements Serializable {
             setExit(lockedDirection, lockedDestination);
             System.out.println("You have unlocked a new exit!");
             System.out.println("Exits: " + getExitString());
+            hintStatus.setHintLevels(HintLevels.LEVEL5);
         } else {
             System.out.println("You don't have the key for the door.");
         }
@@ -154,7 +154,7 @@ class AlarmedRoom extends Room implements Serializable {
         this.alarm = alarm;
         this.item = item;
     }
-    @Override
+
     public void onEnter(Character player, Room room, StateMethods status) {
             boolean hasUniform = false;
             for (Item item2 : player.getInventory()) {

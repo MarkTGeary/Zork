@@ -24,6 +24,7 @@ public class Main extends Application {
     private TextArea console;
     private TextArea userType;
     private ImageView imageView;
+    private ImageView imageView2;
 
     @Override
     public void start(Stage stage) {
@@ -43,9 +44,8 @@ public class Main extends Application {
         userType.setPrefSize(screenWidth-755, 100);
         userType.setLayoutX(screenWidth - userType.getPrefWidth() - 5);
         userType.setLayoutY(screenHeight - userType.getPrefHeight() - 220);
-        userType.appendText("\n> ");
+        userType.appendText("\n>");
 
-        //Used AI to help set up console-ish Text Area
         console = new TextArea();
         console.setEditable(false);
         console.setWrapText(true);
@@ -85,13 +85,16 @@ public class Main extends Application {
         Button talkToNPC = new Button("Talk to npc");
 
         Button CodeEnter = new Button("   Enter \nKey/Code");
-        Button helpButton =  new Button("Help");
+        Button helpButton =  new Button("    Show \nCommands");
 
         Button quitButton = new Button("Quit");
         Button tradeButton = new Button("Trade with npc");
 
+        Button hintButton = new Button("Hint");
+        Button musicButton = new Button(" Music \nOn/Off");
 
-        double baseX = 15;
+
+        double baseX = 5;
         double baseY = screenHeight - 230;
         double gap = 90;
 
@@ -110,38 +113,43 @@ public class Main extends Application {
         takeItem.setLayoutX(baseX + gap);
         takeItem.setLayoutY(baseY);
 
-        double miscStartX = baseX + 2 * gap + 120;
+        double StartX = ((3*baseX) + (gap*3));
         double row1Y = baseY - (gap/1.5);
         double row2Y = baseY + (gap/1.5);
-        double miscGapX = 90;
 
-        inventory.setLayoutX(miscStartX);
+        inventory.setLayoutX(StartX);
         inventory.setLayoutY(row1Y);
 
-        talkToNPC.setLayoutX(miscStartX + miscGapX);
+        talkToNPC.setLayoutX(StartX + gap);
         talkToNPC.setLayoutY(row1Y);
 
-        saveProgress.setLayoutX(miscStartX + miscGapX * 2);
+        saveProgress.setLayoutX(StartX + (gap * 3));
         saveProgress.setLayoutY(row1Y);
 
-        loadProgress.setLayoutX(miscStartX + miscGapX * 3);
+        loadProgress.setLayoutX(StartX + (gap * 4));
         loadProgress.setLayoutY(row1Y);
 
-        CodeEnter.setLayoutX(miscStartX);
+        CodeEnter.setLayoutX(StartX);
         CodeEnter.setLayoutY(row2Y);
 
-        helpButton.setLayoutX(miscStartX + miscGapX * 2);
+        helpButton.setLayoutX(StartX + (gap * 3));
         helpButton.setLayoutY(row2Y);
 
-        quitButton.setLayoutX(miscStartX + miscGapX * 3);
+        quitButton.setLayoutX(StartX + (gap * 4));
         quitButton.setLayoutY(row2Y);
 
-        tradeButton.setLayoutX(miscStartX + miscGapX);
+        tradeButton.setLayoutX(StartX + (gap));
         tradeButton.setLayoutY(row2Y);
 
+        hintButton.setLayoutX(StartX + (gap * 2));
+        hintButton.setLayoutY(row2Y);
+
+        musicButton.setLayoutX(StartX + (gap *2));
+        musicButton.setLayoutY(row1Y);
 
 
-        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton, tradeButton}) {
+
+        for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton, tradeButton, hintButton, musicButton}) {
             b.setPrefSize(95, 90);
         }
 
@@ -248,8 +256,8 @@ public class Main extends Application {
             ComboBox<Item> comboBox = new ComboBox<>(itemChoices);
             comboBox.setPromptText("Choose an Item");
 
-            comboBox.setLayoutX(150);
-            comboBox.setLayoutY(320);
+            comboBox.setLayoutX(baseX + (gap*2) + 10);
+            comboBox.setLayoutY(baseY - gap);
 
             root.getChildren().add(comboBox);
 
@@ -262,6 +270,14 @@ public class Main extends Application {
                 }
             });
         });
+
+        hintButton.setOnAction(e -> {
+            process("hint");
+        });
+
+        musicButton.setOnAction(e -> {
+            process("music");
+        });
         imageView = new ImageView();
         imageView.setFitHeight(480);
         imageView.setFitWidth(750);
@@ -270,7 +286,15 @@ public class Main extends Application {
 
         updateRoomImage(game.getCurrentRoom());
 
-        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter, helpButton, quitButton, tradeButton, userType);
+        imageView2 = new ImageView();
+        imageView2.setFitHeight(480);
+        imageView2.setFitWidth(screenWidth - 750);
+        imageView2.setLayoutX(751);
+        imageView2.setLayoutY(0);
+        Image mapImage = new Image("file:img/map.png");
+        imageView2.setImage(mapImage);
+
+        root.getChildren().addAll(north, south, west, east, takeItem, inventory, console, imageView, saveProgress, loadProgress, talkToNPC, CodeEnter, helpButton, quitButton, tradeButton, userType, hintButton, musicButton, imageView2);
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
         stage.setScene(scene);
@@ -341,21 +365,13 @@ public class Main extends Application {
                 imageView.setImage(storageRoomClosetImage);
                 break;
         }
-
     }
 
+
     private void process(String input) {
-        String[] words = input.trim().split("\\s+");
-        String word1 = words.length > 0 ? words[0] : null;
-        String word2 = words.length > 1 ? words[1] : null;
-        String word3 = words.length > 2 ? words[2] : null;
-        String word4 = words.length > 3 ? words[3] : null;
-        String word5 = words.length > 4 ? words[4] : null;
-        Command command = new Command(word1, word2, word3, word4, word5);
-
+        Parser parser = new Parser();
+        Command command = parser.getCommand(input);
         game.processCommand(command);
-
-
         updateRoomImage(game.getCurrentRoom());
     }
 
@@ -366,11 +382,6 @@ public class Main extends Application {
                 super.println(x);
                 console.appendText(x + "\n");
             }
-            /*@Override
-            public void print(String x) {
-                super.print(x);
-                console.appendText(x +" ");
-            }*/
         };
         System.setOut(printStream);
     }

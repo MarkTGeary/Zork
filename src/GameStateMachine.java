@@ -16,7 +16,7 @@ class WonState implements GameStateMachine {
     @Override
     public void enter() {
         System.out.println("Congratulations, you won!");
-        SoundStuff.playSound("audio\\Celebration2.wav");
+        BackgroundSoundStuff.playMusic("audio/Celebration.wav");
         //System.out.println("Type 'restart' to restart the game!");
     }
 }

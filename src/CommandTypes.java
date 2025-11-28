@@ -1,9 +1,11 @@
 public class CommandTypes {
     public Character player;
     public StateMethods status;
-    public CommandTypes(Character player, StateMethods status) {
+    public HintMethods hintStatus;
+    public CommandTypes(Character player, StateMethods status, HintMethods hintStatus) {
         this.player = player;
         this.status = status;
+        this.hintStatus = hintStatus;
     }
     public void enterCommand(Command command, Item key, Room cell) {
         if (!command.hasSecondWord()) {
@@ -17,7 +19,7 @@ public class CommandTypes {
             System.out.println("There is nothing locked here");
         } else if (command.getSecondWord().equalsIgnoreCase("key") && !command.hasThirdWord()) {
             KeyLockedRoom room = (KeyLockedRoom) player.getCurrentRoom();
-            room.unlockRoom(player, key);
+            room.unlockRoom(player, key, hintStatus);
         } else if (command.getSecondWord().equalsIgnoreCase("code")) {
             Room currentRoom = player.getCurrentRoom();
             String attemptCode = command.getThirdWord();
@@ -236,6 +238,7 @@ public class CommandTypes {
             npc.receiveFromPlayer(player, playerItem);
             npc.setWantedItem(npcItem);
             System.out.println("You traded your " + itemName + " for " + npc.getName() + "'s " + npcItem.getDescription() + ".");
+            hintStatus.setHintLevels(HintLevels.LEVEL4);
         } else {
             System.out.println(npc.getName() + " wants " + npc.getWantedItem().getName() + ", not " + itemName);
         }
@@ -248,26 +251,34 @@ public class CommandTypes {
         } else {
             Room currentRoom = player.getCurrentRoom();
             String npcName = command.getSecondWord();
+            boolean poisonFound = false;
+            boolean found = false;
             for (Item item : player.getInventory()) {
                 if(item.getName().equalsIgnoreCase("poison")) {
+                    poisonFound = true;
                     NPC roomNpc = currentRoom.getNPCs().getFirst();
                     if(roomNpc.getName().equalsIgnoreCase(npcName)) {
+                        found = true;
                         currentRoom.removeNPC(roomNpc);
                         player.dropFromInventory(poison);
                         System.out.println("You successfully injected " + npcName + " with the poison.");
+                        hintStatus.setHintLevels(HintLevels.LEVEL2);
                     }
-                } else {
-                    System.out.println("You have nothing to inject.");
                 }
+            }
+            if(!poisonFound) {
+                System.out.println("You don't have anything to poison with!");
+            } else if (!found) {
+                System.out.println("There is nobody for you to poison here!");
             }
         }
     }
 
     public void digCommand(Command command, Room cell) {
-        if(!command.hasSecondWord()) {
+        if (!command.hasSecondWord()) {
             Room currentRoom = player.getCurrentRoom();
-            for(NPC npc : currentRoom.getNPCs()) {
-                if(npc.getName().equalsIgnoreCase("guard")){
+            for (NPC npc : currentRoom.getNPCs()) {
+                if (npc.getName().equalsIgnoreCase("guard")) {
                     System.out.println("You just dug in front of a guard!");
                     Alarm.ring(player, cell, status);
                 }
@@ -278,6 +289,7 @@ public class CommandTypes {
                         if (!item2.isVisible()) {
                             player.addItemToInventory(item2);
                             item2.setVisible(true);
+                            hintStatus.setHintLevels(HintLevels.LEVEL3);
                         }
                     }
                 } else {
@@ -287,5 +299,10 @@ public class CommandTypes {
         } else {
             System.out.println("Just use the word 'dig'.");
         }
+    }
+
+    public void hintCommand(Command command, HintMethods hintStatus){
+        HintMachine hint = hintStatus.getCurrentHintInterface();
+        hint.displayHint();
     }
 }

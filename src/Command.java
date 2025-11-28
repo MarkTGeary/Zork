@@ -21,9 +21,6 @@ public class Command {
         return secondWord;
     }
 
-    public boolean isUnknown() {
-        return commandWord == null;
-    }
 
     public boolean hasSecondWord() {
         return secondWord != null;

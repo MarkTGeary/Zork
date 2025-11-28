@@ -20,6 +20,10 @@ public class CommandWords {
         validCommands.put("load", "Load the game");
         validCommands.put("enter", "enter a code/key");
         validCommands.put("show", "show access code");
+        validCommands.put("hint", "get a hint");
+        validCommands.put("inject", "inject poison");
+        validCommands.put("dig", "dig for treasure");
+        validCommands.put("music", "Pause/Unpause music");
 
 
 
