@@ -12,6 +12,8 @@ Help system: Lists valid commands to guide the player.
 Overall, it recreates the classic Zork interactive fiction experience with a university-themed setting,
 emphasizing exploration and simple command-driven gameplay
 */
+import javafx.print.Printer;
+
 import java.io.*;
 import java.util.ArrayList;
 
@@ -31,7 +33,7 @@ public class ZorkPrisonGame {
     public ZorkPrisonGame() {
         createRooms();
         parser = new Parser();
-        status = new StateMethods(player, storageRoomCloset);
+        status = new StateMethods(player, storageRoomCloset, cell);
         status.setGameState(GameState.PLAYING);
         hintStatus = new HintMethods();
         hintStatus.setHintLevels(HintLevels.LEVEL1);
@@ -132,6 +134,7 @@ public class ZorkPrisonGame {
         prisoner.addItemToInventory(guardUniform);
         NPC yardOfficer = new NPC("guard", yard, "A guard watches over the yard, ensuring order.", "Any funny business and you'll be right back to your cell");
         yard.addNPC(yardOfficer);
+
     }
 
     public Room getCurrentRoom() {
@@ -250,6 +253,10 @@ public class ZorkPrisonGame {
             default:
                 System.out.println("I don't know what you mean...");
                 break;
+        }
+        PrisonInspection.inspection(player, cell, status);
+        if (!PrisonInspection.isActive() && Math.random() < 0.05) {
+            new CellInspectionEvent().trigger();
         }
         return false;
     }

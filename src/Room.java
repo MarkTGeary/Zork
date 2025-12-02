@@ -83,7 +83,6 @@ class Alarm implements Serializable {
             SoundStuff.playSound("audio\\OofNoise.wav");
         });
         temp.start();
-        player.setCurrentRoom(cell);
 
     }
 }

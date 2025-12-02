@@ -8,7 +8,7 @@ public interface GameStateMachine {
 class PlayingState implements GameStateMachine {
     @Override
     public void enter() {
-        System.out.println("You are now playing the game!");
+        System.out.println("Leave your cell and go escape the prison!");
     }
 }
 
@@ -16,8 +16,7 @@ class WonState implements GameStateMachine {
     @Override
     public void enter() {
         System.out.println("Congratulations, you won!");
-        BackgroundSoundStuff.playMusic("audio/Celebration.wav");
-        //System.out.println("Type 'restart' to restart the game!");
+        BackgroundSoundStuff.playMusic("audio/Winner.wav");
     }
 }
 
@@ -25,9 +24,11 @@ class LostState implements GameStateMachine {
     private Character player;
     private Room storageRoomCloset;
     private StateMethods State;
-    LostState(Character player, Room storageRoomCloset, StateMethods State) {
+    private Room cell;
+    LostState(Character player, Room storageRoomCloset, Room cell, StateMethods State) {
         this.player = player;
         this.storageRoomCloset = storageRoomCloset;
+        this.cell = cell;
         this.State = State;
     }
     public void enter() {
@@ -36,6 +37,7 @@ class LostState implements GameStateMachine {
             player.dropFromInventory(item);
             storageRoomCloset.addItemToRoom(item);
         }
+        player.setCurrentRoom(cell);
         System.out.println("You have had your items taken away and have been sent back to your cell!");
         System.out.println("Go find your items and continue your escape.");
         State.setGameState(GameState.PLAYING);
@@ -49,10 +51,12 @@ class StateMethods {
 
     private Character player;
     private Room storageRoomCloset;
+    private Room cell;
 
-    public StateMethods(Character player, Room storageRoomCloset) {
+    public StateMethods(Character player, Room storageRoomCloset, Room cell) {
         this.player = player;
         this.storageRoomCloset = storageRoomCloset;
+        this.cell = cell;
     }
 
     public void setGameState(GameState newState) {
@@ -68,7 +72,7 @@ class StateMethods {
             case WON:
                 return new WonState();
             case LOST:
-                return new LostState(player, storageRoomCloset, this);
+                return new LostState(player, storageRoomCloset, cell,this);
         }
         return null;
     }

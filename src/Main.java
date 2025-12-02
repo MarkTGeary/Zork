@@ -38,10 +38,10 @@ public class Main extends Application {
         double screenWidth = screenBounds.getWidth();
         double screenHeight = screenBounds.getHeight();
 
-        userType  = new TextArea();
+        userType = new TextArea();
         userType.setEditable(true);
         userType.setWrapText(true);
-        userType.setPrefSize(screenWidth-755, 100);
+        userType.setPrefSize(screenWidth - 755, 100);
         userType.setLayoutX(screenWidth - userType.getPrefWidth() - 5);
         userType.setLayoutY(screenHeight - userType.getPrefHeight() - 220);
         userType.appendText("\n>");
@@ -49,7 +49,7 @@ public class Main extends Application {
         console = new TextArea();
         console.setEditable(false);
         console.setWrapText(true);
-        console.setPrefSize(screenWidth-755, 150);
+        console.setPrefSize(screenWidth - 755, 150);
         console.setLayoutX(screenWidth - console.getPrefWidth() - 5);
         console.setLayoutY(screenHeight - console.getPrefHeight() - 70);
         String intro = game.printWelcome();
@@ -85,7 +85,7 @@ public class Main extends Application {
         Button talkToNPC = new Button("Talk to npc");
 
         Button CodeEnter = new Button("   Enter \nKey/Code");
-        Button helpButton =  new Button("    Show \nCommands");
+        Button helpButton = new Button("    Show \nCommands");
 
         Button quitButton = new Button("Quit");
         Button tradeButton = new Button("Trade with npc");
@@ -113,9 +113,9 @@ public class Main extends Application {
         takeItem.setLayoutX(baseX + gap);
         takeItem.setLayoutY(baseY);
 
-        double StartX = ((3*baseX) + (gap*3));
-        double row1Y = baseY - (gap/1.5);
-        double row2Y = baseY + (gap/1.5);
+        double StartX = ((3 * baseX) + (gap * 3));
+        double row1Y = baseY - (gap / 1.5);
+        double row2Y = baseY + (gap / 1.5);
 
         inventory.setLayoutX(StartX);
         inventory.setLayoutY(row1Y);
@@ -144,9 +144,8 @@ public class Main extends Application {
         hintButton.setLayoutX(StartX + (gap * 2));
         hintButton.setLayoutY(row2Y);
 
-        musicButton.setLayoutX(StartX + (gap *2));
+        musicButton.setLayoutX(StartX + (gap * 2));
         musicButton.setLayoutY(row1Y);
-
 
 
         for (Button b : new Button[]{north, south, west, east, takeItem, inventory, talkToNPC, saveProgress, loadProgress, CodeEnter, helpButton, quitButton, tradeButton, hintButton, musicButton}) {
@@ -170,17 +169,15 @@ public class Main extends Application {
 
             if (currentRoom.getItems().isEmpty()) {
                 System.out.println("There is nothing to take here.");
-            }
-            else if (currentRoom.getItems().size() == 1) {
+            } else if (currentRoom.getItems().size() == 1) {
                 String itemName = currentRoom.getItems().get(0).getName();
                 process("take " + itemName);
-            }
-            else {
+            } else {
                 ObservableList<Item> itemChoices = FXCollections.observableArrayList(currentRoom.getItems());
                 ComboBox<Item> comboBox = new ComboBox<>(itemChoices);
                 comboBox.setPromptText("Choose an Item");
 
-                comboBox.setLayoutX(baseX + (gap*2) + 10);
+                comboBox.setLayoutX(baseX + (gap * 2) + 10);
                 comboBox.setLayoutY(baseY - gap);
 
                 root.getChildren().add(comboBox);
@@ -234,7 +231,7 @@ public class Main extends Application {
                         process("enter code " + enteredCode);
                     }
                 }
-            }else {
+            } else {
                 System.out.println("Error: please enter 'key' or 'code'");
             }
         });
@@ -256,7 +253,7 @@ public class Main extends Application {
             ComboBox<Item> comboBox = new ComboBox<>(itemChoices);
             comboBox.setPromptText("Choose an Item");
 
-            comboBox.setLayoutX(baseX + (gap*2) + 10);
+            comboBox.setLayoutX(baseX + (gap * 2) + 10);
             comboBox.setLayoutY(baseY - gap);
 
             root.getChildren().add(comboBox);
