@@ -1,3 +1,5 @@
+
+
 public class CommandTypes {
     public Character player;
     public StateMethods status;
@@ -8,34 +10,60 @@ public class CommandTypes {
         this.hintStatus = hintStatus;
     }
     public void enterCommand(Command command, Item key, Room cell) {
+
         if (!command.hasSecondWord()) {
             System.out.println("Enter what?");
-        } else if(command.getSecondWord().equalsIgnoreCase("car") && !command.hasThirdWord()) {
+            return;
+        }
+
+        if (command.getSecondWord().equalsIgnoreCase("car") && !command.hasThirdWord()) {
             player.setInVehicle(true);
             System.out.println("You are now in the car.");
-        } else if ((command.getSecondWord().equalsIgnoreCase("code") && command.hasFourthWord()) || (command.getSecondWord().equalsIgnoreCase("key") && command.hasThirdWord())) {
-            System.out.println("Use syntax 'enter code <code>' or 'enter key'");
-        } else if (!(player.getCurrentRoom() instanceof LockedRoom) && !(player.getCurrentRoom() instanceof KeyLockedRoom) && (command.getSecondWord().equalsIgnoreCase("code") || command.getSecondWord().equalsIgnoreCase("key"))) {
-            System.out.println("There is nothing locked here");
-        } else if (command.getSecondWord().equalsIgnoreCase("key") && !command.hasThirdWord()) {
-            KeyLockedRoom room = (KeyLockedRoom) player.getCurrentRoom();
-            room.unlockRoom(player, key, hintStatus);
-        } else if (command.getSecondWord().equalsIgnoreCase("code")) {
-            Room currentRoom = player.getCurrentRoom();
-            String attemptCode = command.getThirdWord();
-            if (currentRoom instanceof LockedRoom lockedRoom) {
-                lockedRoom.enterCode(attemptCode, player, cell, status);
-            }
-        } else {
-            System.out.println("Invalid syntax.");
+            return;
         }
+
+        if (command.getSecondWord().equalsIgnoreCase("code") && !command.hasThirdWord()) {
+            System.out.println("Use syntax: enter code <code>");
+            return;
+        }
+
+        if (command.getSecondWord().equalsIgnoreCase("key") && command.hasThirdWord()) {
+            System.out.println("Use syntax: enter key");
+            return;
+        }
+
+        Room currentRoom = player.getCurrentRoom();
+
+        if (!(currentRoom instanceof LockedRoom<?>)
+                && (command.getSecondWord().equalsIgnoreCase("code")
+                || command.getSecondWord().equalsIgnoreCase("key"))) {
+            System.out.println("There is nothing locked here.");
+            return;
+        }
+
+        if (command.getSecondWord().equalsIgnoreCase("key")) {
+            LockedRoom<?> room = (LockedRoom<?>) currentRoom;
+            room.unlockKey(player, key, hintStatus);
+            return;
+        }
+
+        if (command.getSecondWord().equalsIgnoreCase("code")) {
+            LockedRoom<?> room = (LockedRoom<?>) currentRoom;
+            String attemptCode = command.getThirdWord();
+            room.enterCode(attemptCode, player, cell, status);
+            return;
+        }
+
+        System.out.println("Invalid syntax.");
     }
+
 
     public void driveCommand (Command command, Room pub, Vehicle vehicle){
         if(!command.hasSecondWord()) {
             if(player.getInVehicle()) {
                 vehicle.carNoise(vehicle.getNoise());
                 player.setCurrentRoom(pub);
+                BackgroundSoundStuff.playMusic("audio/Celebration.wav");
                 System.out.println("You are " + player.getCurrentRoom().getDescription());
                 if (!player.getCurrentRoom().getItems().isEmpty()) {
                     System.out.println("You see the following items:");
@@ -46,6 +74,8 @@ public class CommandTypes {
             } else {
                 System.out.println("You have to enter a vehicle to drive it!");
             }
+        } else {
+            System.out.println("Just type 'drive'");
         }
     }
 
@@ -78,50 +108,66 @@ public class CommandTypes {
     }
 
     public void dropCommand(Command command){
+        String itemName;
         if (!command.hasSecondWord()) {
             System.out.println("Drop what?");
+            return;
+        } else if(command.hasThirdWord()){
+            StringBuilder fixMultiWord = new StringBuilder();
+            fixMultiWord.append(command.getSecondWord());
+            fixMultiWord.append(' ');
+            fixMultiWord.append(command.getThirdWord());
+            itemName = fixMultiWord.toString();
         } else {
-            String itemName = command.getSecondWord();
-            Item itemToDrop = null;
-            for (Item item : player.getInventory()) {
-                if (item.getName().equalsIgnoreCase(itemName)) {
-                    itemToDrop = item;
-                    break;
-                }
+            itemName = command.getSecondWord();
+        }
+        Item itemToDrop = null;
+        for (Item item : player.getInventory()) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+                itemToDrop = item;
+                break;
             }
-            if (itemToDrop != null) {
-                player.dropFromInventory(itemToDrop);
-                player.getCurrentRoom().addItemToRoom(itemToDrop);
-                System.out.println("You dropped the " + itemName + ".");
-            } else {
-                System.out.println("You don't have a " + itemName + ".");
-            }
+        }
+        if (itemToDrop != null) {
+            player.dropFromInventory(itemToDrop);
+            player.getCurrentRoom().addItemToRoom(itemToDrop);
+            System.out.println("You dropped the " + itemName + ".");
+        } else {
+            System.out.println("You don't have a " + itemName + ".");
         }
     }
 
-    public void takeCommand(Command command){
+    public void takeCommand(Command command) {
+        String itemName;
         if (!command.hasSecondWord()) {
             System.out.println("Take what?");
+            return;
+        } else if (command.hasThirdWord()) {
+            StringBuilder fixMultiWord = new StringBuilder();
+            fixMultiWord.append(command.getSecondWord());
+            fixMultiWord.append(' ');
+            fixMultiWord.append(command.getThirdWord());
+            itemName = fixMultiWord.toString();
         } else {
-            String itemName = command.getSecondWord();
-            Room currentRoom = player.getCurrentRoom();
-            Item itemToTake = null;
-            for (Item item : currentRoom.getItems()) {
-                if (item.getName().equalsIgnoreCase(itemName)) {
-                    if(item.isVisible()) {
-                        itemToTake = item;
-                        break;
-                    } else {
-                        itemName = "items to be seen";
-                    }
+            itemName = command.getSecondWord();
+        }
+        Room currentRoom = player.getCurrentRoom();
+        Item itemToTake = null;
+        for (Item item : currentRoom.getItems()) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+                if(item.isVisible()) {
+                    itemToTake = item;
+                    break;
+                } else {
+                    itemName = "items to be seen";
                 }
             }
-            if (itemToTake != null) {
-                player.addItemToInventory(itemToTake);
-                currentRoom.removeItemFromRoom(itemToTake);
-            } else {
-                System.out.println("There is no " + itemName + " here.");
-            }
+        }
+        if (itemToTake != null) {
+            player.addItemToInventory(itemToTake);
+            currentRoom.removeItemFromRoom(itemToTake);
+        } else {
+            System.out.println("There is no " + itemName + " here.");
         }
     }
 
@@ -302,7 +348,11 @@ public class CommandTypes {
     }
 
     public void hintCommand(Command command, HintMethods hintStatus){
-        HintMachine hint = hintStatus.getCurrentHintInterface();
-        hint.displayHint();
+        if(command.hasSecondWord()) {
+            System.out.println("Just type 'hint'");
+        } else {
+            HintMachine hint = hintStatus.getCurrentHintInterface();
+            hint.displayHint();
+        }
     }
 }

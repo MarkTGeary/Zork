@@ -87,47 +87,46 @@ class Alarm implements Serializable {
 
     }
 }
-class LockedRoom extends Room implements Serializable {
-    Alarm alarm;
-    protected String lockedDirection;
-    protected Room lockedDestination;
-    private String accessCode;
 
-    public LockedRoom(String name, String description, String lockedDirection, Room lockedDestination, Alarm alarm) {
+
+class AlarmedRoom extends Room implements Serializable {
+    Alarm alarm;
+    Item item;
+    AlarmedRoom(String name, String description, Alarm alarm, Item item) {
         super(name, description);
         this.alarm = alarm;
-        this.lockedDirection = lockedDirection;
-        this.lockedDestination = lockedDestination;
+        this.item = item;
     }
 
-
-    public String getAccessCode(){
-        return accessCode;
-    }
-    public void setAccessCode(String accessCode) {
-        this.accessCode = accessCode;
-    }
-
-
-    public void enterCode(String code, Character player, Room cell, StateMethods state) {
-        if (code.equalsIgnoreCase(accessCode)) {
-            System.out.println("You have entered the correct code!");
-            setExit(lockedDirection, lockedDestination);
-            System.out.println("You have unlocked a new exit!");
-            System.out.println("Exits: " + getExitString());
+    public void onEnter(Character player, Room room, StateMethods status) {
+        boolean hasUniform = false;
+        for (Item item2 : player.getInventory()) {
+            if (item2.getName().equalsIgnoreCase(item.getName())) {
+                hasUniform = true;
+                break;
+            }
         }
-        else {
-            Alarm.ring(player, cell, state);
+        if (!hasUniform) {
+            System.out.println("You just entered the guard station without a uniform!");
+            Alarm.ring(player, room, status);
         }
     }
 }
 
-class KeyLockedRoom extends LockedRoom implements Serializable {
-    KeyLockedRoom(String name, String description, String lockedDirection, Room lockedDestination, Alarm alarm) {
-        super(name, description, lockedDirection, lockedDestination, alarm);
+class LockedRoom<T> extends Room implements Serializable {
+    private T required;
+    private Alarm alarm;
+    private String lockedDirection;
+    private Room lockedDestination;
+    LockedRoom(String name, String description, String lockedDirection, Room lockedDestination, Alarm alarm, T required) {
+        super(name, description);
+        this.lockedDirection = lockedDirection;
+        this.lockedDestination = lockedDestination;
+        this.alarm = alarm;
+        this.required = required;
     }
 
-    public void unlockRoom(Character player, Item key, HintMethods hintStatus){
+    public void unlockKey(Character player, Item key, HintMethods hintStatus){
         boolean hasKey = false;
         for(Item item: player.getInventory()){
             if(item.getName().equalsIgnoreCase(key.getName())){
@@ -144,28 +143,16 @@ class KeyLockedRoom extends LockedRoom implements Serializable {
             System.out.println("You don't have the key for the door.");
         }
     }
-}
 
-class AlarmedRoom extends Room implements Serializable {
-    Alarm alarm;
-    Item item;
-    AlarmedRoom(String name, String description, Alarm alarm, Item item) {
-        super(name, description);
-        this.alarm = alarm;
-        this.item = item;
-    }
-
-    public void onEnter(Character player, Room room, StateMethods status) {
-            boolean hasUniform = false;
-            for (Item item2 : player.getInventory()) {
-                if (item2.getName().equalsIgnoreCase(item.getName())) {
-                    hasUniform = true;
-                    break;
-                }
-            }
-            if (!hasUniform) {
-                System.out.println("You just entered the guard station without a uniform!");
-                Alarm.ring(player, room, status);
+    public void enterCode(String code, Character player, Room cell, StateMethods state) {
+        if (code.equalsIgnoreCase(required.toString())) {
+            System.out.println("You have entered the correct code!");
+            setExit(lockedDirection, lockedDestination);
+            System.out.println("You have unlocked a new exit!");
+            System.out.println("Exits: " + getExitString());
+        }
+        else {
+            alarm.ring(player, cell, state);
         }
     }
 }

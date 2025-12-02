@@ -17,6 +17,7 @@ public class Parser {
         String word4 = null;
         String word5 = null;
 
+        inputLine = inputLine.toLowerCase();
         Scanner tokenizer = new Scanner(inputLine);
         if (tokenizer.hasNext()) {
             word1 = tokenizer.next();

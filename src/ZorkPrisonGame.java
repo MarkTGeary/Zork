@@ -1,5 +1,5 @@
 /* This game is a classic text-based adventure set in a university environment.
-   The player starts outside the main entrance and can navigate through different rooms like a 
+   The player starts outside the main entrance and can navigate through different rooms like a
    lecture theatre, campus pub, computing lab, and admin office using simple text commands (e.g., "go east", "go west").
     The game provides descriptions of each location and lists possible exits.
 
@@ -9,7 +9,7 @@ Simple command parser: Recognizes a limited set of commands like "go", "help", a
 Player character: Tracks current location and handles moving between rooms.
 Text descriptions: Provides immersive text output describing the player's surroundings and available options.
 Help system: Lists valid commands to guide the player.
-Overall, it recreates the classic Zork interactive fiction experience with a university-themed setting, 
+Overall, it recreates the classic Zork interactive fiction experience with a university-themed setting,
 emphasizing exploration and simple command-driven gameplay
 */
 import java.io.*;
@@ -43,23 +43,23 @@ public class ZorkPrisonGame {
     //Where Rooms, Items, and Characters are initialised
     public void createRooms() {
         Room yard, corridor1, infirmary, storageRoom, kitchen, wardenOffice, cafeteria, prisonExit, BobCell;
-        LockedRoom corridor2;
-        KeyLockedRoom securityRoom;
+        LockedRoom<String> corridor2;
+        LockedRoom<Item> securityRoom;
+        AlarmedRoom guardStation;
         Alarm alarm = new Alarm();
-
         // create rooms
         cell = new Room("cell","inside your prison cell");
         corridor1 = new Room("corridor1","inside a corridor");
         yard = new Room("yard","outside in the yard");
         Item guardUniform = new Item("Guard Uniform", "guard uniform", true);
-        AlarmedRoom guardStation = new AlarmedRoom("guardStation","inside the guard station", alarm, guardUniform);
+        guardStation = new AlarmedRoom("guardStation","inside the guard station", alarm, guardUniform);
         prisonExit = new Room("prisonExit","at the prison exit");
-        corridor2 = new LockedRoom("corridor2","inside a corridor", "south", prisonExit, alarm);
+        corridor2 = new LockedRoom("corridor2","inside a corridor", "south", prisonExit, alarm, "25469371");
         kitchen = new Room("kitchen","inside the kitchen");
         cafeteria = new Room("cafeteria","inside the cafeteria");
         pub = new Room("pub","inside the pub");
         wardenOffice = new Room("wardenOffice","inside the warden office");
-        securityRoom = new KeyLockedRoom("securityRoom","inside the security room", "south", wardenOffice, alarm);
+        securityRoom = new LockedRoom("securityRoom","inside the security room", "south", wardenOffice, alarm, key);
         storageRoom = new Room("storageRoom","inside the storage room");
         infirmary = new Room("infirmary","inside the infirmary");
         BobCell = new Room("bobCell","inside Bob's Cell");
@@ -104,7 +104,6 @@ public class ZorkPrisonGame {
 
         corridor2.setExit("north", guardStation);
         corridor2.setExit("west", securityRoom);
-        corridor2.setAccessCode("25469371");
 
         securityRoom.setExit("east", corridor2);
 
@@ -219,6 +218,34 @@ public class ZorkPrisonGame {
                 break;
             case "music":
                 BackgroundSoundStuff.pauseUnpauseMusic();
+                break;
+            case "winthegame":
+                player.setCurrentRoom(pub);
+                Room currentRoom = player.getCurrentRoom();
+                System.out.println(currentRoom.getLongDescription());
+                if (!currentRoom.getItems().isEmpty()) {
+                    boolean itemIntro = false;
+                    boolean visible = true;
+                    for (Item item : currentRoom.getItems()) {
+                        if(item.isVisible()) {
+                            if(!itemIntro) {
+                                System.out.println("You see the following items:");
+                                itemIntro = true;
+                            }
+                            System.out.println(item.getDescription());
+                        } else {
+                            visible = false;
+                        }
+                    }
+                    if(!visible) {
+                        System.out.println("Something seems off about this place. Perhaps more investigation is needed.");
+                    }
+                }
+                if(!currentRoom.getNPCs().isEmpty()){
+                    for(NPC npc : currentRoom.getNPCs()){
+                        System.out.println(npc.getIntroduction());
+                    }
+                }
                 break;
             default:
                 System.out.println("I don't know what you mean...");

@@ -24,6 +24,7 @@ public class CommandWords {
         validCommands.put("inject", "inject poison");
         validCommands.put("dig", "dig for treasure");
         validCommands.put("music", "Pause/Unpause music");
+        validCommands.put("winthegame", "skip to the end");
 
 
 

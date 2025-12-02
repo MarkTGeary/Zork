@@ -163,8 +163,8 @@ public class Main extends Application {
             process("go east");
         });
         west.setOnAction(e -> {
-                process("go west");
-                });
+            process("go west");
+        });
         takeItem.setOnAction(e -> {
             Room currentRoom = game.getCurrentRoom();
 
@@ -180,8 +180,8 @@ public class Main extends Application {
                 ComboBox<Item> comboBox = new ComboBox<>(itemChoices);
                 comboBox.setPromptText("Choose an Item");
 
-                comboBox.setLayoutX(150);
-                comboBox.setLayoutY(320);
+                comboBox.setLayoutX(baseX + (gap*2) + 10);
+                comboBox.setLayoutY(baseY - gap);
 
                 root.getChildren().add(comboBox);
 
