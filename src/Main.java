@@ -64,11 +64,16 @@ public class Main extends Application {
                 String[] lines = text.split("\n");
                 String lastLine = lines[lines.length - 1];
                 String commandText = lastLine.substring(1).trim();
-                if (!commandText.isEmpty()) {
-                    process(commandText);
+                try {
+                    if (!commandText.isEmpty()) {
+                        process(commandText);
+                    }
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                } finally {
+                    userType.appendText("\n> ");
+                    userType.positionCaret(userType.getText().length());
                 }
-                userType.appendText("\n> ");
-                userType.positionCaret(userType.getText().length());
             }
         });
 
@@ -165,7 +170,7 @@ public class Main extends Application {
             process("go west");
         });
         takeItem.setOnAction(e -> {
-            Room currentRoom = game.getCurrentRoom();
+            Room currentRoom = game.player.getCurrentRoom();
 
             if (currentRoom.getItems().isEmpty()) {
                 System.out.println("There is nothing to take here.");
@@ -198,7 +203,7 @@ public class Main extends Application {
         });
 
         talkToNPC.setOnAction(e -> {
-            Room currentRoom = game.getCurrentRoom();
+            Room currentRoom = game.player.getCurrentRoom();
             String x = null;
             if (!currentRoom.getNPCs().isEmpty()) {
                 x = currentRoom.getNPCs().get(0).getName();
@@ -246,7 +251,7 @@ public class Main extends Application {
         });
 
         tradeButton.setOnAction(e -> {
-            Room currentRoom = game.getCurrentRoom();
+            Room currentRoom = game.player.getCurrentRoom();
             NPC npc = currentRoom.getNPCs().getFirst();
             Item item = npc.getInventory().getFirst();
             ObservableList<Item> itemChoices = FXCollections.observableArrayList(game.player.getInventory());
@@ -281,7 +286,7 @@ public class Main extends Application {
         imageView.setLayoutX(0);
         imageView.setLayoutY(0);
 
-        updateRoomImage(game.getCurrentRoom());
+        updateRoomImage(game.player.getCurrentRoom());
 
         imageView2 = new ImageView();
         imageView2.setFitHeight(480);
@@ -369,7 +374,7 @@ public class Main extends Application {
         Parser parser = new Parser();
         Command command = parser.getCommand(input);
         game.processCommand(command);
-        updateRoomImage(game.getCurrentRoom());
+        updateRoomImage(game.player.getCurrentRoom());
     }
 
     private void redirectSystemOut() {

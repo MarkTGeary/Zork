@@ -137,10 +137,6 @@ public class ZorkPrisonGame {
 
     }
 
-    public Room getCurrentRoom() {
-        return player.getCurrentRoom();
-    }
-
     public void play() {
         printWelcome();
 
@@ -226,6 +222,7 @@ public class ZorkPrisonGame {
                 player.setCurrentRoom(pub);
                 Room currentRoom = player.getCurrentRoom();
                 System.out.println(currentRoom.getLongDescription());
+                BackgroundSoundStuff.playMusic("audio/Celebration.wav");
                 if (!currentRoom.getItems().isEmpty()) {
                     boolean itemIntro = false;
                     boolean visible = true;
@@ -254,8 +251,9 @@ public class ZorkPrisonGame {
                 System.out.println("I don't know what you mean...");
                 break;
         }
+        //Checks for prison inspection  and if not active will have a small chance of one occurring
         PrisonInspection.inspection(player, cell, status);
-        if (!PrisonInspection.isActive() && Math.random() < 0.05) {
+        if (!PrisonInspection.isActive() && Math.random() < 0.03) {
             new CellInspectionEvent().trigger();
         }
         return false;
@@ -314,9 +312,10 @@ public class ZorkPrisonGame {
     //Serialisation saving game methods
     public void Save(String filename){
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))){
-            out.writeObject(player);
+            GameSaveState saveState = new GameSaveState(player, status, hintStatus);
+            out.writeObject(saveState);
             out.close();
-            System.out.println("Player Saved");
+            System.out.println("Game Saved");
         } catch (IOException e) {
             System.out.println("IOException is caught.");
             System.out.println("Cannot currently save game");
@@ -325,7 +324,11 @@ public class ZorkPrisonGame {
 
     public void Load(String filename) {
         try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))){
-            player = (Character) in.readObject();
+            GameSaveState saveState = (GameSaveState) in.readObject();
+            player = saveState.getPlayer();
+            status = saveState.getStatus();
+            hintStatus = saveState.getHintStatus();
+            System.out.println("Game Loaded");
         } catch(IOException e){
             System.out.println("IOException is caught");
             System.out.println("Cannot currently load game");

@@ -46,16 +46,6 @@ public class Character implements Serializable {
     }
 
 
-    public void move(String direction) {
-        Room nextRoom = currentRoom.getExit(direction);
-        if (nextRoom != null) {
-            currentRoom = nextRoom;
-            System.out.println("You moved to: " + currentRoom.getDescription());
-        } else {
-            System.out.println("You can't go that way!");
-        }
-    }
-
     
     public void addItemToInventory(Item item) {
         inventory.add(item);
@@ -90,7 +80,7 @@ public class Character implements Serializable {
 
 }
 
-
+//Npc class One constructor with an inventory and one without
 class NPC extends Character implements Serializable {
     private String introduction;
     private String dialogue;

@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ class WonState implements GameStateMachine {
     @Override
     public void enter() {
         System.out.println("Congratulations, you won!");
-        BackgroundSoundStuff.playMusic("audio/Winner.wav");
+        SoundStuff.playSound("audio/Winner.wav");
     }
 }
 
@@ -45,9 +46,9 @@ class LostState implements GameStateMachine {
 
 }
 
-class StateMethods {
+class StateMethods implements Serializable {
     private GameState currentState;
-    private GameStateMachine currentStateInterface;
+    private transient GameStateMachine currentStateInterface;
 
     private Character player;
     private Room storageRoomCloset;

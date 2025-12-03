@@ -302,7 +302,7 @@ public class CommandTypes {
             for (Item item : player.getInventory()) {
                 if(item.getName().equalsIgnoreCase("poison")) {
                     poisonFound = true;
-                    NPC roomNpc = currentRoom.getNPCs().getFirst();
+                    NPC roomNpc = currentRoom.getNPCs().get(0);
                     if(roomNpc.getName().equalsIgnoreCase(npcName)) {
                         found = true;
                         currentRoom.removeNPC(roomNpc);
@@ -335,6 +335,7 @@ public class CommandTypes {
                         if (!item2.isVisible()) {
                             player.addItemToInventory(item2);
                             item2.setVisible(true);
+                            currentRoom.removeItemFromRoom(item2);
                             hintStatus.setHintLevels(HintLevels.LEVEL3);
                         }
                     }

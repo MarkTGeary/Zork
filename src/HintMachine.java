@@ -1,4 +1,6 @@
 //Deal With Hints
+import java.io.Serializable;
+
 public interface HintMachine {
     void displayHint();
 }
@@ -31,7 +33,7 @@ class FifthHint implements HintMachine {
 }
 
 
-class HintMethods {
+class HintMethods implements Serializable {
     private HintLevels currentHint;
 
     public void setHintLevels(HintLevels currentHint) {
