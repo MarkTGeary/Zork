@@ -1,0 +1,104 @@
+package game;
+
+import java.io.Serializable;
+
+public class Item implements Serializable {
+    private String description;
+    private String name;
+    private String location;
+    private boolean isVisible;
+    private String Code;
+
+    public Item(String name, String description, boolean isVisible, String Code) {
+        this.name = name;
+        this.description = description;
+        this.isVisible = isVisible;
+        this.Code = Code;
+    }
+
+    public Item(String name, String description, boolean isVisible){
+        this.name = name;
+        this.description = description;
+        this.isVisible = isVisible;
+    }
+
+    //Setters and Getters
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    //Invisible Item Methods
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(boolean visible) {
+        isVisible = visible;
+    }
+
+    //Access Code Methods
+    public String getCode() {
+        return Code;
+    }
+
+    public void showCode(GameCharacter player){
+        if(player.hasItem(this.name)){
+            System.out.println("Code is : " + this.Code);
+        }
+        else {
+            System.out.println("You have not found the access code.");
+        }
+    }
+
+
+    //For StringBuilder for multi-word items while trading
+    @Override
+    public String toString() {
+        return name;
+    }
+
+}
+
+class Vehicle extends Item implements Serializable {
+    private String noise;
+    public Vehicle(String name, String description, String noise) {
+        super(name, description, true);
+        this.noise = noise;
+    }
+
+    public String getNoise() {
+        return noise;
+    }
+
+    public void carNoise(String noise) {
+        SoundStuff.playSound(noise);
+        try{
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+        e.printStackTrace();}
+    }
+
+
+
+}
+
