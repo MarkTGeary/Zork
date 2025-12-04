@@ -5,7 +5,6 @@ To run the code ensure that you have:
 Java installed (version 21+)
 JavaFx installed
 
-
 How To Play:
 Move around the prison gathering objects and interacting with NPCs to try and escape the prison and get back to the pub!
 Certain items may be needed to enter different rooms or unlock them.
@@ -22,7 +21,9 @@ A prison inspection which has a 1/30 chance of occuring where the player must ma
 Hints to help the player progress through the game.
 High-Quality Soundtrack.
 
-
+How To Run: 
+javac *.java
+java GUIMain
 
 How To Win Game:
 Collect Poison from chef, then poison the guard in the yard. Take the shovel in the storage room and dig up gold in the yard. 
