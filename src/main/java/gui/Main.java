@@ -12,6 +12,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.io.InputStream;
 import java.io.PrintStream;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -307,8 +309,8 @@ public class Main extends Application {
     }
 
     private void updateRoomImage(Room room) {
-        Image cellImage = new Image(getClass().getResource("/img/Cell1.png").toExternalForm());
-        Image bobCellImage = new Image(getClass().getResource("/img/Cell2.png").toExternalForm());
+        Image cellImage = new Image(getClass().getResource("/img/cell1.png").toExternalForm());
+        Image bobCellImage = new Image(getClass().getResource("/img/cell2.png").toExternalForm());
         Image corridorImage = new Image(getClass().getResource("/img/corridor.png").toExternalForm());
         Image yardImage = new Image(getClass().getResource("/img/yard.png").toExternalForm());
         Image storageRoomImage = new Image(getClass().getResource("/img/storageRoom.png").toExternalForm());
@@ -322,6 +324,7 @@ public class Main extends Application {
         Image prisonExitImage = new Image(getClass().getResource("/img/prisonExit.jpg").toExternalForm());
         Image corridor2Image = new Image(getClass().getResource("/img/corridor2.png").toExternalForm());
         Image storageRoomClosetImage = new Image(getClass().getResource("/img/closet.png").toExternalForm());
+
 
 
         switch(room.getName().toLowerCase()) {
@@ -391,6 +394,20 @@ public class Main extends Application {
         };
         System.setOut(printStream);
     }
+
+    private Image loadImage(String name) {
+        try (InputStream is = getClass().getResourceAsStream("/img/" + name)) {
+            if (is == null) {
+                System.err.println("Missing image resource: /img/" + name);
+                return new Image(getClass().getResourceAsStream("/img/placeholder.png"));
+            }
+            return new Image(is);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public static void main(String[] args) {
         launch(args);
